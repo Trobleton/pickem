@@ -85,7 +85,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
 
         // Only handle cross-container moves during drag
         // Check capacity
-        if (roundContainers.includes(overContainer as any)) {
+        if (roundContainers.includes(overContainer as keyof typeof maxParticipantsPerRound)) {
             const maxAllowed = maxParticipantsPerRound[overContainer as keyof typeof maxParticipantsPerRound]
             if (picks[overContainer].length >= maxAllowed) {
                 return
