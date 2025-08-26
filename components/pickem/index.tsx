@@ -29,8 +29,8 @@ export default function Pickem({ data }: { data: TCompetition }) {
 
     const getPlacementNumber = (container: string, index: number) => {
         switch (container) {
-            case 'round-1': return 30 - index
-            case 'round-2': return 10 - index
+            case 'round-1': return 11 + index
+            case 'round-2': return 3 + index
             case 'round-3': return 2
             case 'round-4': return 1
             default: return null
