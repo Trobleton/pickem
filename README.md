@@ -1,7 +1,12 @@
-## Goals
+## Getting Started
 
-- [ ] Overall Picks
-- [ ] Top 5 Picks
+### Clerk Webhooks
+
+We utilize Clerk for OAuth. To Insert, Update and Delete users from our Convex DB we need to expose the localhost to clerk via [ngrok](https://clerk.com/docs/webhooks/sync-data#set-up-ngrok).
+
+```
+ngrok http --url=patient-donkey-friendly.ngrok-free.app 3000
+```
 
 ## Ranking
 
