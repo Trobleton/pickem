@@ -16,6 +16,7 @@ import './globals.css'
 import TwitchIcon from '@/components/icons/twitch'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/navigation'
+import Providers from '@/components/providers'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,29 +40,31 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <SignedIn>
-            <Navigation />
+      <Providers>
+        <html lang="en" className="dark">
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <SignedIn>
+              <Navigation />
 
-            {children}
-          </SignedIn>
+              {children}
+            </SignedIn>
 
-          <SignedOut>
-            <div className="flex items-center justify-center min-h-screen">
-              <SignInButton>
-                <Button variant="twitch">
-                  <TwitchIcon />
-                  Sign In With Twitch
-                </Button>
-              </SignInButton>
-            </div>
-          </SignedOut>
+            <SignedOut>
+              <div className="flex items-center justify-center min-h-screen">
+                <SignInButton>
+                  <Button variant="twitch">
+                    <TwitchIcon />
+                    Sign In With Twitch
+                  </Button>
+                </SignInButton>
+              </div>
+            </SignedOut>
 
-          <Analytics />
-          <SpeedInsights />
-        </body>
-      </html>
+            <Analytics />
+            <SpeedInsights />
+          </body>
+        </html>
+      </Providers>
     </ClerkProvider>
   )
 }

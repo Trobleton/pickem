@@ -1,6 +1,9 @@
 import Pickem from "@/components/pickem";
+import { api } from "@/convex/_generated/api";
 import { TParticipant } from "@/types/competiton";
 import { currentUser } from "@clerk/nextjs/server";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
+import { redirect } from "next/navigation";
 
 
 export default async function CompetitionPage() {
@@ -15,10 +18,20 @@ export default async function CompetitionPage() {
         participants: TParticipant[]
     } = await res.json();
 
+    const user = await currentUser()!
+    const currentEvent = await fetchQuery(api.events.getCurrentEvent);
+
+    if (!currentEvent || !user) {
+        redirect('/')
+        return null
+    }
+
+    const preloadedPicks = await preloadQuery(api.picks.getCurrentEventPicks, { clerkId: user.id, eventId: currentEvent._id });
+
     return (
         <div className="p-4 space-y-4">
-            <h1 className="font-sans text-4xl font-medium">Mute Competition Aug 2025</h1>
-            <Pickem data={data.participants} />
+            <h1 className="font-sans text-4xl font-medium">{currentEvent.name}</h1>
+            <Pickem data={data.participants} preloadedPicks={preloadedPicks} />
         </div>
     )
 }

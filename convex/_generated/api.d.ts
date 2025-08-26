@@ -13,6 +13,9 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as events from "../events.js";
+import type * as leaderboard from "../leaderboard.js";
+import type * as picks from "../picks.js";
 import type * as users from "../users.js";
 
 /**
@@ -24,6 +27,9 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  events: typeof events;
+  leaderboard: typeof leaderboard;
+  picks: typeof picks;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

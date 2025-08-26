@@ -8,8 +8,14 @@ import { Droppable } from "./droppable"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import Participant from "./participant"
 import SortableParticipant from "./sortable-participant"
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { Button } from "../ui/button"
 
-export default function Pickem({ data }: { data: TCompetition }) {
+export default function Pickem({ data, preloadedPicks }: { data: TCompetition, preloadedPicks: Preloaded<typeof api.picks.getCurrentEventPicks> }) {
+    const lockIn = useMutation(api.picks.lockIn)
+    const userPicks = usePreloadedQuery(preloadedPicks)
+
     const roundContainers = ['round-1', 'round-2', 'round-3', 'round-4'] as const
     const participantContainer = 'participants'
 
@@ -176,8 +182,20 @@ export default function Pickem({ data }: { data: TCompetition }) {
         return null
     }, [activeId, picks])
 
+    function handleSubmit() {
+        console.log(picks)
+
+        // call the lockIn mutation
+        // lockIn({
+        //     userId: currentUser.id,
+        //     eventId: currentEvent.id,
+        //     picks: Object.values(picks).flat().map(p => p.contestant_id)
+        // })
+    }
+
     return (
         <div className="max-w-5xl">
+            <Button onClick={handleSubmit}>Lock In Picks</Button>
             <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-4 gap-4">
                     {roundContainers.map((round, index) => (
