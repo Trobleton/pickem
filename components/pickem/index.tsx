@@ -70,7 +70,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
 
     function handleDragOver(event: DragOverEvent) {
         const { active, over } = event
-        
+
         if (!over) return
 
         const activeId = String(active.id)
@@ -125,7 +125,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event
         setActiveId(null)
-        
+
         if (!over) return
 
         const activeId = String(active.id)
@@ -177,7 +177,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
     }
 
     return (
-        <div className="p-4">
+        <div className="">
             <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-4 gap-4">
                     {roundContainers.map((round, index) => (

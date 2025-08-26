@@ -16,8 +16,8 @@ export default async function CompetitionPage() {
     } = await res.json();
 
     return (
-        <div>
-            <h1>Competition</h1>
+        <div className="p-4 space-y-4">
+            <h1 className="font-sans text-4xl font-medium">Mute Competition Aug 2025</h1>
             <Pickem data={data.participants} />
         </div>
     )
