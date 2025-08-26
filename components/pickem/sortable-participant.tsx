@@ -26,14 +26,14 @@ export default function SortableParticipant({ data }: { data: TParticipant }) {
         <Button
             variant="secondary"
             size="lg"
-            className="w-[178px] text-left truncate flex px-2 flex-row gap-2 justify-start cursor-grab active:cursor-grabbing"
+            className="w-full max-w-[178px] text-left truncate flex px-2 flex-row gap-2 justify-start cursor-grab active:cursor-grabbing"
             ref={setNodeRef}
             style={style}
             {...listeners}
             {...attributes}
         >
-            <Avatar className="">
-                <AvatarImage src={data.tierlist_image} alt={data.display_name} />
+            <Avatar className="rounded-sm">
+                <AvatarImage src={data.tierlist_image} alt={data.display_name} height={32} width={32} />
                 <AvatarFallback>{data.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             {data.display_name}

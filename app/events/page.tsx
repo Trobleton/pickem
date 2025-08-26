@@ -29,8 +29,8 @@ export default async function CompetitionPage() {
     const preloadedPicks = await preloadQuery(api.picks.getCurrentEventPicks, { clerkId: user.id, eventId: currentEvent._id });
 
     return (
-        <div className="p-4 space-y-4">
-            <h1 className="font-sans text-4xl font-medium">{currentEvent.name}</h1>
+        <div className="p-4 space-y-4 max-w-6xl mx-auto">
+            <h1 className="font-sans text-4xl font-medium text-center">{currentEvent.name}</h1>
             <Pickem data={data.participants} preloadedPicks={preloadedPicks} />
         </div>
     )

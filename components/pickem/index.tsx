@@ -194,8 +194,9 @@ export default function Pickem({ data, preloadedPicks }: { data: TCompetition, p
     }
 
     return (
-        <div className="max-w-5xl">
-            <Button onClick={handleSubmit}>Lock In Picks</Button>
+        <div className="max-w-5xl space-y-4 flex flex-col gap-4 mx-auto">
+            <Button onClick={handleSubmit} className="w-fit ml-auto">Lock In Picks</Button>
+
             <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-4 gap-4">
                     {roundContainers.map((round, index) => (
@@ -226,25 +227,20 @@ export default function Pickem({ data, preloadedPicks }: { data: TCompetition, p
                     ))}
                 </div>
 
-                <div>
+                <div className="sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border p-4">
                     <Droppable id={participantContainer}>
-                        <Card className="p-4 mt-4">
-                            <CardHeader className="p-0">
-                                <CardTitle>Participants</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-4 gap-4 min-h-32">
-                                <SortableContext items={picks[participantContainer]?.map(p => String(p.contestant_id)) || []} strategy={verticalListSortingStrategy}>
-                                    {picks[participantContainer]?.map((participant) => (
-                                        <SortableParticipant data={participant} key={participant.contestant_id} />
-                                    ))}
-                                    {picks[participantContainer]?.length === 0 && (
-                                        <div className="text-muted-foreground text-center py-8 col-span-4">
-                                            Drop participants here
-                                        </div>
-                                    )}
-                                </SortableContext>
-                            </CardContent>
-                        </Card>
+                        <div className="flex flex-wrap gap-4 min-h-32">
+                            <SortableContext items={picks[participantContainer]?.map(p => String(p.contestant_id)) || []} strategy={verticalListSortingStrategy}>
+                                {picks[participantContainer]?.map((participant) => (
+                                    <SortableParticipant data={participant} key={participant.contestant_id} />
+                                ))}
+                                {picks[participantContainer]?.length === 0 && (
+                                    <div className="text-muted-foreground text-center py-8 col-span-4">
+                                        Drop participants here
+                                    </div>
+                                )}
+                            </SortableContext>
+                        </div>
                     </Droppable>
                 </div>
 
