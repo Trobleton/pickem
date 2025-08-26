@@ -1,4 +1,4 @@
-import { Pickem } from "@/components/pickem";
+import Pickem from "@/components/pickem";
 import { TParticipant } from "@/types/competiton";
 import { currentUser } from "@clerk/nextjs/server";
 
