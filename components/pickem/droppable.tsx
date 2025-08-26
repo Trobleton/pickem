@@ -1,13 +1,19 @@
-import { useDroppable } from '@dnd-kit/core';
+import { useDroppable } from "@dnd-kit/core";
 
-export function Droppable({ id, children }: { id: string, children: React.ReactNode }) {
-    const { setNodeRef } = useDroppable({
-        id,
-    });
+export function Droppable({
+  id,
+  children,
+  disabled,
+}: {
+  id: string;
+  children: React.ReactNode;
+  disabled: boolean;
+}) {
+  const { setNodeRef } = useDroppable({
+    id,
+    disabled,
+  });
 
-    return (
-        <div ref={setNodeRef}>
-            {children}
-        </div>
-    );
+  return <div ref={setNodeRef}>{children}</div>;
 }
+

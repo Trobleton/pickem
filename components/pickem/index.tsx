@@ -28,7 +28,6 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "../ui/button";
 import { ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
 import { Id } from "@/convex/_generated/dataModel";
 
 export default function Pickem({
@@ -45,7 +44,7 @@ export default function Pickem({
   const lockIn = useMutation(api.picks.lockIn);
   const userPicks = usePreloadedQuery(preloadedPicks);
 
-  const [showParticipants, setShowParticipants] = useState(true);
+  const [showParticipants, setShowParticipants] = useState(!userPicks);
 
   const roundContainers = ["round-1", "round-2", "round-3", "round-4"] as const;
   const participantContainer = "participants";
@@ -87,6 +86,60 @@ export default function Pickem({
       "round-3": [],
       "round-4": [],
     };
+
+    if (userPicks?.picks) {
+      const savedPicks = userPicks.picks;
+
+      const usedContestantIds = new Set(
+        savedPicks.filter((id) =>
+          data.some(
+            (participant) => String(participant.contestant_id) === String(id),
+          ),
+        ),
+      );
+
+      // Populate round-4 (1st place)
+      initialPicks["round-4"] = [
+        data.find(
+          (participant) =>
+            String(participant.contestant_id) === String(savedPicks[0]),
+        ),
+      ].filter(Boolean) as TParticipant[];
+
+      // Populate round-3 (2nd place)
+      initialPicks["round-3"] = [
+        data.find(
+          (participant) =>
+            String(participant.contestant_id) === String(savedPicks[1]),
+        ),
+      ].filter(Boolean) as TParticipant[];
+
+      // Populate round-2 (3rd to 10th place)
+      initialPicks["round-2"] = savedPicks
+        .slice(2, 10)
+        .map((id) =>
+          data.find(
+            (participant) => String(participant.contestant_id) === String(id),
+          ),
+        )
+        .filter(Boolean) as TParticipant[];
+
+      // Populate round-1 (11th to 30th place)
+      initialPicks["round-1"] = savedPicks
+        .slice(10, 30)
+        .map((id) =>
+          data.find(
+            (participant) => String(participant.contestant_id) === String(id),
+          ),
+        )
+        .filter(Boolean) as TParticipant[];
+
+      // Remove auto-populated contestants from participants array
+      initialPicks[participantContainer] = data.filter(
+        (participant) => !usedContestantIds.has(participant.contestant_id),
+      );
+    }
+
     return initialPicks;
   });
 
@@ -260,6 +313,11 @@ export default function Pickem({
       return;
     }
 
+    // confirm before submitting
+    if (!confirm("Are you sure you want to submit your picks?")) {
+      return;
+    }
+
     // flatten picks into an array of contest ids
     const round1 = picks["round-1"];
     const round2 = picks["round-2"];
@@ -288,13 +346,14 @@ export default function Pickem({
       <DndContext
         sensors={sensors}
         collisionDetection={rectIntersection}
+        autoScroll
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-4 gap-4">
           {roundContainers.map((round, index) => (
-            <Droppable key={round} id={round}>
+            <Droppable key={round} id={round} disabled={!!userPicks}>
               <Card className="p-4">
                 <CardHeader className="p-0">
                   <CardTitle>{roundPlacements[round]}</CardTitle>
@@ -319,7 +378,10 @@ export default function Pickem({
                           {getPlacementNumber(round, participantIndex)}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <SortableParticipant data={participant} />
+                          <SortableParticipant
+                            data={participant}
+                            disabled={!!userPicks}
+                          />
                         </div>
                       </div>
                     ))}
@@ -355,7 +417,7 @@ export default function Pickem({
               showParticipants ? "max-h-fit" : "max-h-24 mask-b-from-25%",
             )}
           >
-            <Droppable id={participantContainer}>
+            <Droppable id={participantContainer} disabled={!!userPicks}>
               <div className="flex flex-wrap gap-4 min-h-32 justify-center">
                 <SortableContext
                   items={
@@ -369,6 +431,7 @@ export default function Pickem({
                     <SortableParticipant
                       data={participant}
                       key={participant.contestant_id}
+                      disabled={!!userPicks}
                     />
                   ))}
                   {picks[participantContainer]?.length === 0 && (
