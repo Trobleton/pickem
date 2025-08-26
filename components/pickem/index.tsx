@@ -26,7 +26,7 @@ import SortableParticipant from "./sortable-participant";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "../ui/button";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -333,15 +333,43 @@ export default function Pickem({
     });
   }
 
+  function resetPicks() {
+    if (
+      !Object.keys(picks).some(
+        (key) => key !== participantContainer && picks[key].length > 0,
+      )
+    ) {
+      return;
+    }
+
+    if (!confirm("Are you sure you want to reset your picks?")) {
+      return;
+    }
+
+    setPicks({
+      [participantContainer]: data,
+      "round-1": [],
+      "round-2": [],
+      "round-3": [],
+      "round-4": [],
+    });
+  }
+
   return (
     <div className="max-w-5xl space-y-4 flex flex-col gap-4 mx-auto">
-      <Button
-        disabled={!!userPicks}
-        onClick={handleSubmit}
-        className="w-fit ml-auto"
-      >
-        Lock In Picks
-      </Button>
+      <div className="flex flex-row gap-4 w-fit ml-auto">
+        <Button
+          variant="destructive"
+          disabled={!!userPicks || !picks}
+          onClick={resetPicks}
+        >
+          <RefreshCw />
+          Reset
+        </Button>
+        <Button disabled={!!userPicks} onClick={handleSubmit} className="">
+          Lock In Picks
+        </Button>
+      </div>
 
       <DndContext
         sensors={sensors}
