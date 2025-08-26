@@ -39,7 +39,7 @@ export default function Pickem({
   const lockIn = useMutation(api.picks.lockIn);
   const userPicks = usePreloadedQuery(preloadedPicks);
 
-  const [showParticipants, setShowParticipants] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(true);
 
   const roundContainers = ["round-1", "round-2", "round-3", "round-4"] as const;
   const participantContainer = "participants";
@@ -255,7 +255,11 @@ export default function Pickem({
 
   return (
     <div className="max-w-5xl space-y-4 flex flex-col gap-4 mx-auto">
-      <Button onClick={handleSubmit} className="w-fit ml-auto">
+      <Button
+        disabled={!!userPicks}
+        onClick={handleSubmit}
+        className="w-fit ml-auto"
+      >
         Lock In Picks
       </Button>
 
@@ -306,7 +310,7 @@ export default function Pickem({
 
         <div
           className={cn(
-            "sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border p-4",
+            "sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border pt-4",
           )}
         >
           <Button
@@ -326,11 +330,11 @@ export default function Pickem({
           <div
             className={cn(
               "transition-transform overflow-hidden",
-              showParticipants ? "max-h-fit" : "max-h-32 mask-b-from-25%",
+              showParticipants ? "max-h-fit" : "max-h-24 mask-b-from-25%",
             )}
           >
             <Droppable id={participantContainer}>
-              <div className="flex flex-wrap gap-4 min-h-32">
+              <div className="flex flex-wrap gap-4 min-h-32 justify-center">
                 <SortableContext
                   items={
                     picks[participantContainer]?.map((p) =>
