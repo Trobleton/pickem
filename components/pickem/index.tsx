@@ -26,6 +26,8 @@ import SortableParticipant from "./sortable-participant";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "../ui/button";
+import { ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Pickem({
   data,
@@ -36,6 +38,8 @@ export default function Pickem({
 }) {
   const lockIn = useMutation(api.picks.lockIn);
   const userPicks = usePreloadedQuery(preloadedPicks);
+
+  const [showParticipants, setShowParticipants] = useState(false);
 
   const roundContainers = ["round-1", "round-2", "round-3", "round-4"] as const;
   const participantContainer = "participants";
@@ -300,31 +304,56 @@ export default function Pickem({
           ))}
         </div>
 
-        <div className="sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border p-4">
-          <Droppable id={participantContainer}>
-            <div className="flex flex-wrap gap-4 min-h-32">
-              <SortableContext
-                items={
-                  picks[participantContainer]?.map((p) =>
-                    String(p.contestant_id),
-                  ) || []
-                }
-                strategy={verticalListSortingStrategy}
-              >
-                {picks[participantContainer]?.map((participant) => (
-                  <SortableParticipant
-                    data={participant}
-                    key={participant.contestant_id}
-                  />
-                ))}
-                {picks[participantContainer]?.length === 0 && (
-                  <div className="text-muted-foreground text-center py-8 col-span-4">
-                    Drop participants here
-                  </div>
-                )}
-              </SortableContext>
-            </div>
-          </Droppable>
+        <div
+          className={cn(
+            "sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border p-4",
+          )}
+        >
+          <Button
+            size="icon"
+            variant="link"
+            className="absolute -top-8 left-0 right-0 mx-auto -z-10"
+            onClick={() => setShowParticipants((prev) => !prev)}
+          >
+            <ChevronUp
+              className={cn(
+                "transition-transform",
+                showParticipants ? "rotate-0" : "rotate-180",
+              )}
+            />
+          </Button>
+
+          <div
+            className={cn(
+              "transition-transform overflow-hidden",
+              showParticipants ? "max-h-fit" : "max-h-32 mask-b-from-25%",
+            )}
+          >
+            <Droppable id={participantContainer}>
+              <div className="flex flex-wrap gap-4 min-h-32">
+                <SortableContext
+                  items={
+                    picks[participantContainer]?.map((p) =>
+                      String(p.contestant_id),
+                    ) || []
+                  }
+                  strategy={verticalListSortingStrategy}
+                >
+                  {picks[participantContainer]?.map((participant) => (
+                    <SortableParticipant
+                      data={participant}
+                      key={participant.contestant_id}
+                    />
+                  ))}
+                  {picks[participantContainer]?.length === 0 && (
+                    <div className="text-muted-foreground text-center py-8 col-span-4">
+                      Drop participants here
+                    </div>
+                  )}
+                </SortableContext>
+              </div>
+            </Droppable>
+          </div>
         </div>
 
         <DragOverlay>
@@ -334,4 +363,3 @@ export default function Pickem({
     </div>
   );
 }
-
