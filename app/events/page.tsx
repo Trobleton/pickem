@@ -17,16 +17,18 @@ export default async function CompetitionPage() {
     participants: TParticipant[];
   } = await res.json();
 
-  const user = await currentUser()!;
+  const clerkUser = await currentUser();
   const currentEvent = await fetchQuery(api.events.getCurrentEvent);
+  const user = await fetchQuery(api.users.findUserByClerkId, {
+    clerkId: clerkUser!.id,
+  });
 
   if (!currentEvent || !user) {
     redirect("/");
-    return null;
   }
 
   const preloadedPicks = await preloadQuery(api.picks.getCurrentEventPicks, {
-    clerkId: user.id,
+    clerkId: clerkUser!.id,
     eventId: currentEvent._id,
   });
 
@@ -35,7 +37,13 @@ export default async function CompetitionPage() {
       <h1 className="font-sans text-4xl font-medium text-center bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-700">
         {currentEvent.name}
       </h1>
-      <Pickem data={data.participants} preloadedPicks={preloadedPicks} />
+
+      <Pickem
+        data={data.participants}
+        preloadedPicks={preloadedPicks}
+        eventId={currentEvent._id}
+        userId={user.data!._id}
+      />
     </div>
   );
 }

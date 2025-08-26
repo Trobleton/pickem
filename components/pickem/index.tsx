@@ -28,13 +28,19 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "../ui/button";
 import { ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function Pickem({
   data,
   preloadedPicks,
+  eventId,
+  userId,
 }: {
   data: TCompetition;
   preloadedPicks: Preloaded<typeof api.picks.getCurrentEventPicks>;
+  userId: Id<"users">;
+  eventId: Id<"events">;
 }) {
   const lockIn = useMutation(api.picks.lockIn);
   const userPicks = usePreloadedQuery(preloadedPicks);
@@ -243,14 +249,30 @@ export default function Pickem({
   }, [activeId, picks]);
 
   function handleSubmit() {
-    console.log(picks);
+    const allRoundsFilled = roundContainers.every(
+      (round) => picks[round].length === maxParticipantsPerRound[round],
+    );
 
-    // call the lockIn mutation
-    // lockIn({
-    //     userId: currentUser.id,
-    //     eventId: currentEvent.id,
-    //     picks: Object.values(picks).flat().map(p => p.contestant_id)
-    // })
+    if (!allRoundsFilled) {
+      alert(
+        "Please ensure all rounds are completely filled before submitting.",
+      );
+      return;
+    }
+
+    // flatten picks into an array of contest ids
+    const round1 = picks["round-1"];
+    const round2 = picks["round-2"];
+    const round3 = picks["round-3"];
+    const round4 = picks["round-4"];
+    const managedPicks = [round4, round3, round2, round1];
+    const flattedPicks = managedPicks.flat().map((p) => p.contestant_id);
+
+    lockIn({
+      userId,
+      eventId,
+      picks: flattedPicks,
+    });
   }
 
   return (
