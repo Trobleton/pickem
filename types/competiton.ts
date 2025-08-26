@@ -1,10 +1,11 @@
 export type TParticipant = {
-    user_id: number
+    contestant_id: number
     display_name: string
-    twitch_user_name: string
-    twitch_user_id: number
-    tierlist_image: string
     ranking: number
+    rounds_count: number
+    tierlist_image: string
+    total_score: number
+    twitch_user_name: string
 }
 
 export type TCompetition = TParticipant[] | []

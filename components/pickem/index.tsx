@@ -3,7 +3,7 @@
 import { TCompetition, TParticipant } from "@/types/competiton"
 import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useSensor, useSensors, rectIntersection } from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
-import React, { useState } from "react"
+import React, { useState, useMemo, useCallback } from "react"
 import { Droppable } from "./droppable"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import Participant from "./participant"
@@ -14,7 +14,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
     const participantContainer = 'participants'
 
     const maxParticipantsPerRound = {
-        'round-1': 19, // 30-11
+        'round-1': 20, // 30-11
         'round-2': 8, // 10-3
         'round-3': 1, // 2
         'round-4': 1 // 1
@@ -64,9 +64,9 @@ export default function Pickem({ data }: { data: TCompetition }) {
         })
     )
 
-    function handleDragStart(event: DragStartEvent) {
+    const handleDragStart = useCallback((event: DragStartEvent) => {
         setActiveId(String(event.active.id))
-    }
+    }, [])
 
     function handleDragOver(event: DragOverEvent) {
         const { active, over } = event
@@ -95,7 +95,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
         setPicks(prev => {
             const activeItems = prev[activeContainer]
             const overItems = prev[overContainer]
-            const activeIndex = activeItems.findIndex(item => String(item.user_id) === activeId)
+            const activeIndex = activeItems.findIndex(item => String(item.contestant_id) === activeId)
 
             // Don't move if already moved
             if (activeIndex === -1) return prev
@@ -106,13 +106,13 @@ export default function Pickem({ data }: { data: TCompetition }) {
             if ([...roundContainers, participantContainer].includes(overId)) {
                 overIndex = overItems.length
             } else {
-                const participantIndex = overItems.findIndex(item => String(item.user_id) === overId)
+                const participantIndex = overItems.findIndex(item => String(item.contestant_id) === overId)
                 overIndex = participantIndex !== -1 ? participantIndex + 1 : overItems.length
             }
 
             return {
                 ...prev,
-                [activeContainer]: activeItems.filter(item => String(item.user_id) !== activeId),
+                [activeContainer]: activeItems.filter(item => String(item.contestant_id) !== activeId),
                 [overContainer]: [
                     ...overItems.slice(0, overIndex),
                     activeItem,
@@ -122,7 +122,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
         })
     }
 
-    function handleDragEnd(event: DragEndEvent) {
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event
         setActiveId(null)
 
@@ -140,8 +140,8 @@ export default function Pickem({ data }: { data: TCompetition }) {
             // Same container reordering (sortable handles this automatically)
             setPicks(prev => {
                 const items = prev[activeContainer]
-                const oldIndex = items.findIndex(item => String(item.user_id) === activeId)
-                const newIndex = items.findIndex(item => String(item.user_id) === overId)
+                const oldIndex = items.findIndex(item => String(item.contestant_id) === activeId)
+                const newIndex = items.findIndex(item => String(item.contestant_id) === overId)
 
                 if (oldIndex !== -1 && newIndex !== -1) {
                     return {
@@ -153,7 +153,7 @@ export default function Pickem({ data }: { data: TCompetition }) {
             })
         }
         // Cross-container moves already handled in handleDragOver
-    }
+    }, [picks])
 
     function findContainerInState(id: string, state: Record<string, TParticipant[]>) {
         if (id in state) {
@@ -161,28 +161,28 @@ export default function Pickem({ data }: { data: TCompetition }) {
         }
 
         for (const [containerId, items] of Object.entries(state)) {
-            if (items.find(item => String(item.user_id) === id)) {
+            if (items.find(item => String(item.contestant_id) === id)) {
                 return containerId
             }
         }
     }
 
-    const getActiveParticipant = () => {
+    const activeParticipant = useMemo(() => {
         if (!activeId) return null
         for (const participants of Object.values(picks)) {
-            const participant = participants.find(p => String(p.user_id) === activeId)
+            const participant = participants.find(p => String(p.contestant_id) === activeId)
             if (participant) return participant
         }
         return null
-    }
+    }, [activeId, picks])
 
     return (
-        <div className="">
+        <div className="max-w-5xl">
             <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-4 gap-4">
                     {roundContainers.map((round, index) => (
                         <Droppable key={round} id={round}>
-                            <Card className="p-4 min-h-32">
+                            <Card className="p-4">
                                 <CardHeader className="p-0">
                                     <CardTitle>Round {index + 1}: {roundPlacements[round]}</CardTitle>
                                     <div className="text-sm text-muted-foreground">
@@ -190,9 +190,9 @@ export default function Pickem({ data }: { data: TCompetition }) {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="px-0 space-y-2">
-                                    <SortableContext items={picks[round]?.map(p => String(p.user_id)) || []} strategy={verticalListSortingStrategy}>
+                                    <SortableContext items={picks[round]?.map(p => String(p.contestant_id)) || []} strategy={verticalListSortingStrategy}>
                                         {picks[round]?.map((participant, participantIndex) => (
-                                            <div key={participant.user_id} className="flex items-center min-w-0 gap-2">
+                                            <div key={participant.contestant_id} className="flex items-center min-w-0 gap-2">
                                                 <span className="text-sm font-mono w-6">
                                                     {getPlacementNumber(round, participantIndex)}
                                                 </span>
@@ -215,9 +215,9 @@ export default function Pickem({ data }: { data: TCompetition }) {
                                 <CardTitle>Participants</CardTitle>
                             </CardHeader>
                             <CardContent className="grid grid-cols-4 gap-4 min-h-32">
-                                <SortableContext items={picks[participantContainer]?.map(p => String(p.user_id)) || []} strategy={verticalListSortingStrategy}>
+                                <SortableContext items={picks[participantContainer]?.map(p => String(p.contestant_id)) || []} strategy={verticalListSortingStrategy}>
                                     {picks[participantContainer]?.map((participant) => (
-                                        <SortableParticipant data={participant} key={participant.user_id} />
+                                        <SortableParticipant data={participant} key={participant.contestant_id} />
                                     ))}
                                     {picks[participantContainer]?.length === 0 && (
                                         <div className="text-muted-foreground text-center py-8 col-span-4">
@@ -231,8 +231,8 @@ export default function Pickem({ data }: { data: TCompetition }) {
                 </div>
 
                 <DragOverlay>
-                    {activeId ? (
-                        <Participant data={getActiveParticipant()!} />
+                    {activeParticipant ? (
+                        <Participant data={activeParticipant} />
                     ) : null}
                 </DragOverlay>
             </DndContext>
