@@ -8,7 +8,11 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 import './globals.css'
+
 import TwitchIcon from '@/components/icons/twitch'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/navigation'
@@ -44,13 +48,18 @@ export default function RootLayout({
           </SignedIn>
 
           <SignedOut>
-            <SignInButton>
-              <Button className="m-auto" variant="twitch">
-                <TwitchIcon />
-                Sign In With Twitch
-              </Button>
-            </SignInButton>
+            <div className="flex items-center justify-center min-h-screen">
+              <SignInButton>
+                <Button variant="twitch">
+                  <TwitchIcon />
+                  Sign In With Twitch
+                </Button>
+              </SignInButton>
+            </div>
           </SignedOut>
+
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
