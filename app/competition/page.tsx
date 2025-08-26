@@ -6,7 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 export default async function CompetitionPage() {
     const user = await currentUser()
 
-    const url = new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+    const url = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
     const res = await fetch(`${url}/api/competition`);
     const data: {
