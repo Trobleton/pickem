@@ -89,21 +89,17 @@ export default function Pickem({
     };
 
     if (userPicks?.picks) {
-      const savedPicks = userPicks.picks;
+      // Filter out dropped contestants from saved picks
+      const validContestantIds = new Set(data.map(p => String(p.contestant_id)));
+      const filteredPicks = userPicks.picks.filter(id => validContestantIds.has(String(id)));
 
-      const usedContestantIds = new Set(
-        savedPicks.filter((id) =>
-          data.some(
-            (participant) => String(participant.contestant_id) === String(id),
-          ),
-        ),
-      );
+      const usedContestantIds = new Set(filteredPicks);
 
       // Populate round-4 (1st place)
       initialPicks["round-4"] = [
         data.find(
           (participant) =>
-            String(participant.contestant_id) === String(savedPicks[0]),
+            String(participant.contestant_id) === String(filteredPicks[0]),
         ),
       ].filter(Boolean) as TParticipant[];
 
@@ -111,12 +107,12 @@ export default function Pickem({
       initialPicks["round-3"] = [
         data.find(
           (participant) =>
-            String(participant.contestant_id) === String(savedPicks[1]),
+            String(participant.contestant_id) === String(filteredPicks[1]),
         ),
       ].filter(Boolean) as TParticipant[];
 
       // Populate round-2 (3rd to 10th place)
-      initialPicks["round-2"] = savedPicks
+      initialPicks["round-2"] = filteredPicks
         .slice(2, 10)
         .map((id) =>
           data.find(
@@ -126,7 +122,7 @@ export default function Pickem({
         .filter(Boolean) as TParticipant[];
 
       // Populate round-1 (11th to 30th place)
-      initialPicks["round-1"] = savedPicks
+      initialPicks["round-1"] = filteredPicks
         .slice(10, 30)
         .map((id) =>
           data.find(
