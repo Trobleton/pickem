@@ -23,7 +23,7 @@ import { Droppable } from "./droppable";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import Participant from "./participant";
 import SortableParticipant from "./sortable-participant";
-import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
+import { Preloaded, useMutation, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "../ui/button";
 import { ChevronUp, RefreshCw } from "lucide-react";
@@ -43,6 +43,7 @@ export default function Pickem({
 }) {
   const lockIn = useMutation(api.picks.lockIn);
   const userPicks = usePreloadedQuery(preloadedPicks);
+  const event = useQuery(api.events.getCurrentEvent)
 
   const [showParticipants, setShowParticipants] = useState(!userPicks);
 
@@ -191,7 +192,7 @@ export default function Pickem({
     ) {
       const maxAllowed =
         maxParticipantsPerRound[
-          overContainer as keyof typeof maxParticipantsPerRound
+        overContainer as keyof typeof maxParticipantsPerRound
         ];
       if (picks[overContainer].length >= maxAllowed) {
         return;
@@ -306,6 +307,11 @@ export default function Pickem({
       (round) => picks[round].length === maxParticipantsPerRound[round],
     );
 
+    if (event?.status === "closed") {
+      alert("Event is closed. You cannot submit picks.");
+      return;
+    }
+
     if (!allRoundsFilled) {
       alert(
         "Please ensure all rounds are completely filled before submitting.",
@@ -355,19 +361,21 @@ export default function Pickem({
     });
   }
 
+  const disabled = event?.status !== 'open'
+
   return (
     <div className="max-w-5xl space-y-4 flex flex-col gap-4 mx-auto">
       <div className="flex flex-row gap-4 w-fit ml-auto">
         <Button
           variant="destructive"
-          disabled={!!userPicks || !picks}
+          disabled={disabled || !picks}
           onClick={resetPicks}
         >
           <RefreshCw />
           Reset
         </Button>
-        <Button disabled={!!userPicks} onClick={handleSubmit} className="">
-          Lock In Picks
+        <Button disabled={disabled} onClick={handleSubmit} className="">
+          {event?.status !== 'open' ? 'Picks Locked' : !!userPicks ? 'Update Picks' : 'Lock In Picks'}
         </Button>
       </div>
 
@@ -381,7 +389,7 @@ export default function Pickem({
       >
         <div className="grid grid-cols-4 gap-4">
           {roundContainers.map((round, index) => (
-            <Droppable key={round} id={round} disabled={!!userPicks}>
+            <Droppable key={round} id={round} disabled={disabled}>
               <Card className="p-4">
                 <CardHeader className="p-0">
                   <CardTitle>{roundPlacements[round]}</CardTitle>
@@ -408,7 +416,7 @@ export default function Pickem({
                         <div className="min-w-0 flex-1">
                           <SortableParticipant
                             data={participant}
-                            disabled={!!userPicks}
+                            disabled={disabled}
                           />
                         </div>
                       </div>
@@ -445,7 +453,7 @@ export default function Pickem({
               showParticipants ? "max-h-fit" : "max-h-24 mask-b-from-25%",
             )}
           >
-            <Droppable id={participantContainer} disabled={!!userPicks}>
+            <Droppable id={participantContainer} disabled={disabled}>
               <div className="flex flex-wrap gap-4 min-h-32 justify-center">
                 <SortableContext
                   items={
@@ -459,7 +467,7 @@ export default function Pickem({
                     <SortableParticipant
                       data={participant}
                       key={participant.contestant_id}
-                      disabled={!!userPicks}
+                      disabled={disabled}
                     />
                   ))}
                   {picks[participantContainer]?.length === 0 && (

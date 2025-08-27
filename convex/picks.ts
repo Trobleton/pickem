@@ -16,10 +16,8 @@ export const lockIn = mutation({
       .first();
 
     if (existingPicks) {
-      return {
-        success: false,
-        message: "User has already locked in picks for this event",
-      };
+      await ctx.db.patch(existingPicks._id, { picks: args.picks })
+      return { success: true }
     }
 
     await ctx.db.insert("picks", {
