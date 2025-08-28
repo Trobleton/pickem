@@ -43,6 +43,7 @@ export default function EventsEditor({ data }: Props) {
     eventId: data._id,
   });
   const createLeaderboard = useMutation(api.leaderboard.createLeaderboard);
+  const updateEvent = useMutation(api.events.updateEvent);
 
   const form = useForm({
     defaultValues: {
@@ -150,6 +151,15 @@ export default function EventsEditor({ data }: Props) {
     createLeaderboard({ eventId: data._id, results: newLeaderboard });
   }
 
+  function handleFormSubmit(values: {
+    name: string;
+    status: string;
+    results?: string;
+  }) {
+    updateEvent({ eventId: data._id, ...values });
+    form.reset();
+  }
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -164,7 +174,10 @@ export default function EventsEditor({ data }: Props) {
         </SheetHeader>
 
         <Form {...form}>
-          <form className="flex flex-col flex-1">
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="flex flex-col flex-1"
+          >
             <div className="grid flex-1 auto-rows-min gap-6 px-4">
               <FormField
                 control={form.control}

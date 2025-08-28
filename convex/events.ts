@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { action, query } from "./_generated/server";
+import { action, mutation, query } from "./_generated/server";
 
 export const getEvents = query({
   handler: async (ctx) => {
@@ -36,3 +36,15 @@ export const getEventData = action({
   },
 });
 
+export const updateEvent = mutation({
+  args: {
+    eventId: v.id("events"),
+    name: v.string(),
+    status: v.string(),
+    results: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { eventId, ...rest } = args;
+    await ctx.db.patch(eventId, { ...rest });
+  },
+});
