@@ -18,9 +18,18 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { MedalIcon } from "lucide-react";
+import { InfoIcon, MedalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Button } from "./ui/button";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -36,13 +45,47 @@ export default function Leaderboard({
     <div className="w-full max-w-4xl mx-auto">
       <Card
         className={cn(
-          "border-purple-800 min-h-32",
+          "border-purple-800 min-h-32 relative",
           !leaderboard && "mask-b-from-25%",
         )}
       >
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Leaderboard</CardTitle>
           <CardDescription>{event?.name}</CardDescription>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-fit p-2 absolute top-4 right-4"
+                title="Leaderboard Scoring Info"
+              >
+                <InfoIcon size={14} />
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Leaderboard Scoring</DialogTitle>
+
+                <div className="text-sm space-y-2">
+                  <p>A perfect pick would total 205 points.</p>
+                  <ul className="list-disc list-inside">
+                    <li>
+                      <strong>4 points</strong> per correct ranking (120 points)
+                    </li>
+                    <li>
+                      <strong>2 points</strong> per correct bracket (60 points)
+                    </li>
+                    <li>
+                      <strong>5 points</strong> per correct top 5 (25 points)
+                    </li>
+                  </ul>
+                </div>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
 
         <CardContent>
@@ -66,7 +109,7 @@ function LeaderboardResults({
   if (!leaderboard) return null;
 
   return (
-    <div className="max-h-[400px] overflow-y-scroll">
+    <div className="relative max-h-[400px] overflow-y-scroll">
       <Table>
         <TableHeader className="sticky top-0">
           <TableRow>
