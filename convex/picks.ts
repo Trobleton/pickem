@@ -65,3 +65,15 @@ export const getPicksByEventId = query({
     return picks;
   },
 });
+
+export const getPicksByUserId = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const picks = await ctx.db
+      .query("picks")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .first();
+
+    return picks;
+  },
+});
