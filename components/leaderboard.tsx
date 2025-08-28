@@ -20,6 +20,7 @@ import {
 } from "./ui/table";
 import { MedalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -61,12 +62,13 @@ function LeaderboardResults({
 }: {
   leaderboard: FunctionReturnType<typeof api.leaderboard.getCurrentLeaderboard>;
 }) {
+  const user = useUser();
   if (!leaderboard) return null;
 
   return (
-    <div>
+    <div className="max-h-[400px] overflow-y-scroll">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0">
           <TableRow>
             <TableHead>Rank</TableHead>
             <TableHead>Name</TableHead>
@@ -74,25 +76,37 @@ function LeaderboardResults({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {leaderboard.map((result) => (
-            <TableRow key={result._id}>
-              <TableCell className="font-mono flex flex-row items-center gap-4">
-                {result.rank}
-                {result.rank <= 3 ? (
-                  <MedalIcon
-                    size={14}
-                    className={cn(
-                      result.rank === 1 && "text-orange-400",
-                      result.rank === 2 && "text-gray-400",
-                      result.rank === 3 && "text-yellow-800",
-                    )}
-                  />
-                ) : null}
-              </TableCell>
-              <TableCell>{result.user!.displayName}</TableCell>
-              <TableCell>{result.score}</TableCell>
-            </TableRow>
-          ))}
+          {leaderboard.map((result) => {
+            const isCurrentUser =
+              user.user && user.user.username === result.user!.username;
+
+            return (
+              <TableRow
+                key={result._id}
+                className={cn(
+                  isCurrentUser && "bg-purple-700/20 hover:bg-purple-700/50",
+                )}
+              >
+                <TableCell className="font-mono flex flex-row items-center gap-4">
+                  {result.rank}
+                  {result.rank <= 3 ? (
+                    <MedalIcon
+                      size={14}
+                      className={cn(
+                        result.rank === 1 && "text-orange-400",
+                        result.rank === 2 && "text-gray-400",
+                        result.rank === 3 && "text-yellow-800",
+                      )}
+                    />
+                  ) : null}
+                </TableCell>
+                <TableCell className={cn(isCurrentUser && "font-bold")}>
+                  {result.user!.displayName}
+                </TableCell>
+                <TableCell>{result.score}</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
