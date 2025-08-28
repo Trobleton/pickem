@@ -6,6 +6,7 @@ export default defineSchema({
     eventId: v.number(),
     name: v.string(),
     status: v.string(),
+    results: v.optional(v.string()),
   }),
   leaderboard: defineTable({
     eventId: v.id("events"),
@@ -25,4 +26,3 @@ export default defineSchema({
     photo: v.string(),
   }).index("clerkId", ["clerkId"]),
 });
-

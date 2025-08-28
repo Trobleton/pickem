@@ -16,8 +16,8 @@ export const lockIn = mutation({
       .first();
 
     if (existingPicks) {
-      await ctx.db.patch(existingPicks._id, { picks: args.picks })
-      return { success: true }
+      await ctx.db.patch(existingPicks._id, { picks: args.picks });
+      return { success: true };
     }
 
     await ctx.db.insert("picks", {
@@ -54,3 +54,14 @@ export const getCurrentEventPicks = query({
   },
 });
 
+export const getPicksByEventId = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    const picks = await ctx.db
+      .query("picks")
+      .filter((q) => q.eq(q.field("eventId"), args.eventId))
+      .collect();
+
+    return picks;
+  },
+});
