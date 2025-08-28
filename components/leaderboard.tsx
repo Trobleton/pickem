@@ -36,7 +36,7 @@ export default function Leaderboard({
       <Card
         className={cn(
           "border-purple-800 min-h-32",
-          leaderboard && "mask-b-from-25%",
+          !leaderboard && "mask-b-from-25%",
         )}
       >
         <CardHeader className="text-center">
