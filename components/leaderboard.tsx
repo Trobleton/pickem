@@ -295,7 +295,7 @@ function LeaderboardUserPicks({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 max-w-4xl mx-auto gap-4">
         <Card
           className={cn(
             "p-2 gap-0 cursor-pointer",
@@ -307,7 +307,7 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center">Bracket</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">Bracket (+2)</CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
             <NumberFlow value={bracketScore} trend={0} animated />
           </CardContent>
@@ -324,7 +324,7 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center">Ranking</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">Ranking (+4)</CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
             <NumberFlow value={rankingScore} trend={0} animated />
           </CardContent>
@@ -341,14 +341,14 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center">Top 5</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">Top 5 (+5)</CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
             <NumberFlow value={topFiveScore} trend={0} animated />
           </CardContent>
         </Card>
 
-        <Card className="p-2 gap-0">
-          <CardHeader className="px-2 text-center">Total</CardHeader>
+        <Card className="p-2 gap-0 col-span-3 md:col-span-1">
+          <CardHeader className="px-2 text-center text-sm md:text-base">Total</CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono">
             <NumberFlow value={totalScore} trend={0} animated />
           </CardContent>
@@ -366,7 +366,7 @@ function LeaderboardUserPicks({
         </Button>
       </div>
 
-      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5">
+      <div className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll lg:overflow-x-hidden overflow-x-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5 min-w-0" style={{gridTemplateColumns: 'repeat(4, minmax(200px, 1fr))'}}>
         {Object.entries(picksByRound)
           .reverse()
           .map(([round, picks]) => (
