@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { InfoIcon, MedalIcon, TriangleAlert } from "lucide-react";
+import { InfoIcon, MedalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import {
@@ -38,16 +38,17 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
-import { TParticipant } from "@/types/competiton";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { TEventParticipant, TEventResponse } from "@/types/events";
 import {
   calculateBracketScore,
   calculateRankingScore,
   calculateTopFiveScore,
+  getCorrectRankingParticipants,
+  getCorrectBracketParticipants,
+  getCorrectTopFiveParticipants,
 } from "@/lib/events";
 import NumberFlow from "@number-flow/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
 
 export default function Leaderboard({
@@ -187,7 +188,6 @@ function LeaderboardResults({
                     userId={result.userId}
                     results={results}
                     score={result.score}
-                    rank={result.rank}
                   />
                 </DrawerContent>
               </Drawer>
@@ -203,12 +203,10 @@ function LeaderboardUserPicks({
   userId,
   results,
   score,
-  rank,
 }: {
   userId: Id<"users">;
   results: string;
   score: number;
-  rank: number;
 }) {
   const picks = useQuery(api.picks.getPicksByUserId, { userId });
   const eventResults: TEventResponse = JSON.parse(results);
@@ -217,31 +215,43 @@ function LeaderboardUserPicks({
   const [bracketScore, setBracketScore] = useState(0);
   const [rankingScore, setRankingScore] = useState(0);
   const [topFiveScore, setTopFiveScore] = useState(0);
-  const [userScore, setUserScore] = useState(0);
+  const [totalScore, setTotalScore] = useState(0);
+  const [highlightedCategory, setHighlightedCategory] = useState<string | null>(
+    null,
+  );
+  const [showFinalRanks, setShowFinalRanks] = useState(false);
+  const hasInitialized = useRef(false);
+
+  const scoringData = useMemo(() => {
+    if (!picks) {
+      return {
+        correctRankingIds: [],
+        correctBracketIds: [],
+        correctTopFiveIds: [],
+      };
+    }
+
+    const picksData = { picks: picks.picks, results: participants };
+
+    return {
+      correctRankingIds: getCorrectRankingParticipants(picksData),
+      correctBracketIds: getCorrectBracketParticipants(picksData),
+      correctTopFiveIds: getCorrectTopFiveParticipants(picksData),
+    };
+  }, [picks, participants]);
 
   useEffect(() => {
-    if (picks) {
-      setBracketScore(
-        calculateBracketScore({
-          picks: picks.picks,
-          results: participants,
-        }),
-      );
-      setRankingScore(
-        calculateRankingScore({
-          picks: picks.picks,
-          results: participants,
-        }),
-      );
-      setTopFiveScore(
-        calculateTopFiveScore({
-          picks: picks.picks,
-          results: participants,
-        }),
-      );
-      setUserScore(score);
+    if (picks && !hasInitialized.current) {
+      const picksData = { picks: picks.picks, results: participants };
+
+      setBracketScore(calculateBracketScore(picksData));
+      setRankingScore(calculateRankingScore(picksData));
+      setTopFiveScore(calculateTopFiveScore(picksData));
+      setTotalScore(score);
+
+      hasInitialized.current = true;
     }
-  }, [picks, participants]);
+  }, [picks, participants, score]);
 
   if (typeof picks === "undefined") {
     return <p>loading...</p>;
@@ -286,23 +296,53 @@ function LeaderboardUserPicks({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4">
-        <Card className="p-2 gap-0">
+        <Card
+          className={cn(
+            "p-2 gap-0 cursor-pointer",
+            highlightedCategory === "bracket" && "outline outline-green-500",
+          )}
+          onClick={() =>
+            setHighlightedCategory((prev) =>
+              prev === "bracket" ? null : "bracket",
+            )
+          }
+        >
           <CardHeader className="px-2 text-center">Bracket</CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono">
+          <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
             <NumberFlow value={bracketScore} trend={0} animated />
           </CardContent>
         </Card>
 
-        <Card className="p-2 gap-0">
+        <Card
+          className={cn(
+            "p-2 gap-0 cursor-pointer",
+            highlightedCategory === "ranking" && "outline outline-blue-500",
+          )}
+          onClick={() =>
+            setHighlightedCategory((prev) =>
+              prev === "ranking" ? null : "ranking",
+            )
+          }
+        >
           <CardHeader className="px-2 text-center">Ranking</CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono">
+          <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
             <NumberFlow value={rankingScore} trend={0} animated />
           </CardContent>
         </Card>
 
-        <Card className="p-2 gap-0">
+        <Card
+          className={cn(
+            "p-2 gap-0 cursor-pointer",
+            highlightedCategory === "topFive" && "outline outline-purple-500",
+          )}
+          onClick={() =>
+            setHighlightedCategory((prev) =>
+              prev === "topFive" ? null : "topFive",
+            )
+          }
+        >
           <CardHeader className="px-2 text-center">Top 5</CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono">
+          <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
             <NumberFlow value={topFiveScore} trend={0} animated />
           </CardContent>
         </Card>
@@ -310,15 +350,35 @@ function LeaderboardUserPicks({
         <Card className="p-2 gap-0">
           <CardHeader className="px-2 text-center">Total</CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono">
-            <NumberFlow value={userScore} trend={0} animated />
+            <NumberFlow value={totalScore} trend={0} animated />
           </CardContent>
         </Card>
       </div>
-      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll">
+
+      <div className="flex justify-center mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFinalRanks(!showFinalRanks)}
+          className="text-xs"
+        >
+          {showFinalRanks ? "Show My Rankings" : "Show Final Rankings"}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5">
         {Object.entries(picksByRound)
           .reverse()
           .map(([round, picks]) => (
-            <LeaderboardUserPicksRound key={round} picksByRound={picks} />
+            <LeaderboardUserPicksRound
+              key={round}
+              picksByRound={picks}
+              highlightedCategory={highlightedCategory}
+              correctRankingIds={scoringData.correctRankingIds}
+              correctBracketIds={scoringData.correctBracketIds}
+              correctTopFiveIds={scoringData.correctTopFiveIds}
+              showFinalRanks={showFinalRanks}
+            />
           ))}
       </div>
     </div>
@@ -327,20 +387,58 @@ function LeaderboardUserPicks({
 
 function LeaderboardUserPicksRound({
   picksByRound,
+  highlightedCategory,
+  correctRankingIds,
+  correctBracketIds,
+  correctTopFiveIds,
+  showFinalRanks,
 }: {
   picksByRound: { participant: TEventParticipant | undefined; rank: number }[];
+  highlightedCategory: string | null;
+  correctRankingIds: number[];
+  correctBracketIds: number[];
+  correctTopFiveIds: number[];
+  showFinalRanks: boolean;
 }) {
   const roundPicks = picksByRound || [];
   return (
     <div className="flex flex-col gap-2">
-      {roundPicks.map(({ participant, rank }, index) => (
-        <div key={index}>
-          <LeaderboardUserPicksRoundItem
-            participant={participant}
-            userRank={rank}
-          />
-        </div>
-      ))}
+      {roundPicks.map(({ participant, rank }, index) => {
+        const participantId = participant?.contestant_id;
+        const earnedRanking =
+          !!participantId && correctRankingIds.includes(participantId);
+        const earnedBracket =
+          !!participantId && correctBracketIds.includes(participantId);
+        const earnedTopFive =
+          !!participantId && correctTopFiveIds.includes(participantId);
+
+        return (
+          <div
+            key={index}
+            className={cn(
+              "rounded-md outline-offset-1",
+              highlightedCategory === "bracket" &&
+                earnedBracket &&
+                "outline outline-green-500",
+              highlightedCategory === "ranking" &&
+                earnedRanking &&
+                "outline outline-blue-500",
+              highlightedCategory === "topFive" &&
+                earnedTopFive &&
+                "outline outline-purple-500",
+            )}
+          >
+            <LeaderboardUserPicksRoundItem
+              participant={participant}
+              userRank={rank}
+              earnedRanking={earnedRanking}
+              earnedBracket={earnedBracket}
+              earnedTopFive={earnedTopFive}
+              showFinalRanks={showFinalRanks}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -348,14 +446,26 @@ function LeaderboardUserPicksRound({
 function LeaderboardUserPicksRoundItem({
   participant,
   userRank,
+  earnedRanking,
+  earnedBracket,
+  earnedTopFive,
+  showFinalRanks,
 }: {
   participant?: TEventParticipant;
   userRank: number;
+  earnedRanking?: boolean;
+  earnedBracket?: boolean;
+  earnedTopFive?: boolean;
+  showFinalRanks?: boolean;
 }) {
+  const displayRank = showFinalRanks
+    ? (participant?.ranking ?? userRank)
+    : userRank;
+
   if (!participant) {
     return (
       <div className="flex flex-row items-center gap-4 h-8 bg-neutral-900 rounded-md">
-        <span className="font-mono w-6 pl-2">{userRank}</span>
+        <span className="font-mono w-6 pl-2">{displayRank}</span>
         <span className="line-through">Dropped Out</span>
       </div>
     );
@@ -363,8 +473,32 @@ function LeaderboardUserPicksRoundItem({
 
   return (
     <div className="relative flex flex-row items-center gap-4 overflow-hidden h-8 bg-neutral-900 rounded-md border border-neutral-700">
-      <span className="font-mono w-6 pl-2">{userRank}</span>
-      {participant.display_name}
+      <span className="font-mono w-6 pl-2">
+        <NumberFlow value={displayRank} animated trend={0} />
+      </span>
+      <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
+        <div className="truncate text-sm">{participant.display_name}</div>
+        <div className="flex gap-1">
+          {earnedRanking && (
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full"
+              title="Earned ranking points"
+            />
+          )}
+          {earnedBracket && (
+            <div
+              className="w-2 h-2 bg-green-500 rounded-full"
+              title="Earned bracket points"
+            />
+          )}
+          {earnedTopFive && (
+            <div
+              className="w-2 h-2 bg-purple-500 rounded-full"
+              title="Earned top 5 points"
+            />
+          )}
+        </div>
+      </div>
       <Image
         src={participant?.tierlist_image ?? ""}
         alt={participant?.display_name ?? ""}

@@ -54,3 +54,39 @@ export function calculateTopFiveScore({ picks, results }: CalculateParams) {
 
   return score;
 }
+
+export function getCorrectRankingParticipants({
+  picks,
+  results,
+}: CalculateParams) {
+  return results
+    .filter(
+      ({ contestant_id, ranking }) =>
+        picks.indexOf(contestant_id) + 1 === ranking,
+    )
+    .map(({ contestant_id }) => contestant_id);
+}
+
+export function getCorrectBracketParticipants({
+  picks,
+  results,
+}: CalculateParams) {
+  const top30Results = results
+    .filter(({ ranking }) => ranking <= 30)
+    .map(({ contestant_id }) => contestant_id);
+  const top30Picks = picks.slice(0, 30);
+
+  return top30Picks.filter((pick) => top30Results.includes(pick));
+}
+
+export function getCorrectTopFiveParticipants({
+  picks,
+  results,
+}: CalculateParams) {
+  const topFiveResults = results
+    .filter(({ ranking }) => ranking <= 5)
+    .map(({ contestant_id }) => contestant_id);
+  const topFivePicks = picks.slice(0, 5);
+
+  return topFivePicks.filter((pick) => topFiveResults.includes(pick));
+}
