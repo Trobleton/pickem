@@ -35,13 +35,20 @@ import {
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
-  DrawerPortal,
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
 import { TParticipant } from "@/types/competiton";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
+import { TEventParticipant, TEventResponse } from "@/types/events";
+import {
+  calculateBracketScore,
+  calculateRankingScore,
+  calculateTopFiveScore,
+} from "@/lib/events";
+import NumberFlow from "@number-flow/react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -168,20 +175,19 @@ function LeaderboardResults({
                     <TableCell>{result.score}</TableCell>
                   </TableRow>
                 </DrawerTrigger>
-                <DrawerContent className="">
+                <DrawerContent className="min-h-3/4 px-4 focus-visible:outline-none">
                   <DrawerHeader>
-                    <DrawerTitle>{result.user!.displayName} Picks</DrawerTitle>
-                    <DrawerDescription>
-                      <span className="inline-flex flex-row items-center gap-2">
-                        <TriangleAlert size={14} className="text-orange-400" />{" "}
-                        Work in Progress
-                      </span>
-                    </DrawerDescription>
+                    <DrawerTitle className="text-2xl">
+                      {result.user!.displayName}
+                    </DrawerTitle>
+                    <DrawerDescription>Rank: {result.rank}</DrawerDescription>
                   </DrawerHeader>
 
                   <LeaderboardUserPicks
                     userId={result.userId}
                     results={results}
+                    score={result.score}
+                    rank={result.rank}
                   />
                 </DrawerContent>
               </Drawer>
@@ -196,12 +202,46 @@ function LeaderboardResults({
 function LeaderboardUserPicks({
   userId,
   results,
+  score,
+  rank,
 }: {
   userId: Id<"users">;
   results: string;
+  score: number;
+  rank: number;
 }) {
   const picks = useQuery(api.picks.getPicksByUserId, { userId });
-  const eventResults = JSON.parse(results);
+  const eventResults: TEventResponse = JSON.parse(results);
+  const { participants } = eventResults;
+
+  const [bracketScore, setBracketScore] = useState(0);
+  const [rankingScore, setRankingScore] = useState(0);
+  const [topFiveScore, setTopFiveScore] = useState(0);
+  const [userScore, setUserScore] = useState(0);
+
+  useEffect(() => {
+    if (picks) {
+      setBracketScore(
+        calculateBracketScore({
+          picks: picks.picks,
+          results: participants,
+        }),
+      );
+      setRankingScore(
+        calculateRankingScore({
+          picks: picks.picks,
+          results: participants,
+        }),
+      );
+      setTopFiveScore(
+        calculateTopFiveScore({
+          picks: picks.picks,
+          results: participants,
+        }),
+      );
+      setUserScore(score);
+    }
+  }, [picks, participants]);
 
   if (typeof picks === "undefined") {
     return <p>loading...</p>;
@@ -213,12 +253,12 @@ function LeaderboardUserPicks({
     (
       groups: Record<
         number,
-        { participant: TParticipant | undefined; rank: number }[]
+        { participant: TEventParticipant | undefined; rank: number }[]
       >,
       pick: (typeof picks)["picks"][number],
       index: number,
     ) => {
-      const participant: TParticipant | undefined =
+      const participant: TEventParticipant | undefined =
         eventResults.participants.find(
           (p: { contestant_id: number }) => p.contestant_id === pick,
         );
@@ -239,17 +279,48 @@ function LeaderboardUserPicks({
     },
     {} as Record<
       number,
-      { participant: TParticipant | undefined; rank: number }[]
+      { participant: TEventParticipant | undefined; rank: number }[]
     >,
   );
 
   return (
-    <div className="grid grid-cols-4 max-w-2xl mx-auto gap-4">
-      {Object.entries(picksByRound)
-        .reverse()
-        .map(([round, picks]) => (
-          <LeaderboardUserPicksRound key={round} picksByRound={picks} />
-        ))}
+    <div className="space-y-4">
+      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4">
+        <Card className="p-2 gap-0">
+          <CardHeader className="px-2 text-center">Bracket</CardHeader>
+          <CardContent className="px-2 text-center text-3xl font-mono">
+            <NumberFlow value={bracketScore} trend={0} animated />
+          </CardContent>
+        </Card>
+
+        <Card className="p-2 gap-0">
+          <CardHeader className="px-2 text-center">Ranking</CardHeader>
+          <CardContent className="px-2 text-center text-3xl font-mono">
+            <NumberFlow value={rankingScore} trend={0} animated />
+          </CardContent>
+        </Card>
+
+        <Card className="p-2 gap-0">
+          <CardHeader className="px-2 text-center">Top 5</CardHeader>
+          <CardContent className="px-2 text-center text-3xl font-mono">
+            <NumberFlow value={topFiveScore} trend={0} animated />
+          </CardContent>
+        </Card>
+
+        <Card className="p-2 gap-0">
+          <CardHeader className="px-2 text-center">Total</CardHeader>
+          <CardContent className="px-2 text-center text-3xl font-mono">
+            <NumberFlow value={userScore} trend={0} animated />
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid grid-cols-4 max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll">
+        {Object.entries(picksByRound)
+          .reverse()
+          .map(([round, picks]) => (
+            <LeaderboardUserPicksRound key={round} picksByRound={picks} />
+          ))}
+      </div>
     </div>
   );
 }
@@ -257,11 +328,11 @@ function LeaderboardUserPicks({
 function LeaderboardUserPicksRound({
   picksByRound,
 }: {
-  picksByRound: { participant: TParticipant | undefined; rank: number }[];
+  picksByRound: { participant: TEventParticipant | undefined; rank: number }[];
 }) {
   const roundPicks = picksByRound || [];
   return (
-    <div className="flex flex-col gap-2 flex-1">
+    <div className="flex flex-col gap-2">
       {roundPicks.map(({ participant, rank }, index) => (
         <div key={index}>
           <LeaderboardUserPicksRoundItem
@@ -278,17 +349,29 @@ function LeaderboardUserPicksRoundItem({
   participant,
   userRank,
 }: {
-  participant?: TParticipant;
+  participant?: TEventParticipant;
   userRank: number;
 }) {
+  if (!participant) {
+    return (
+      <div className="flex flex-row items-center gap-4 h-8 bg-neutral-900 rounded-md">
+        <span className="font-mono w-6 pl-2">{userRank}</span>
+        <span className="line-through">Dropped Out</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-row items-center gap-4">
-      <span className="font-mono">{userRank}</span>
-      <Avatar className="rounded-sm">
-        <AvatarImage src={participant?.tierlist_image} height={32} width={32} />
-        <AvatarFallback>A</AvatarFallback>
-      </Avatar>
-      {participant ? participant.display_name : "Dropped Out"}
+    <div className="relative flex flex-row items-center gap-4 overflow-hidden h-8 bg-neutral-900 rounded-md border border-neutral-700">
+      <span className="font-mono w-6 pl-2">{userRank}</span>
+      {participant.display_name}
+      <Image
+        src={participant?.tierlist_image ?? ""}
+        alt={participant?.display_name ?? ""}
+        width={48}
+        height={48}
+        className="absolute right-0 top-0 mask-l-from-25%"
+      />
     </div>
   );
 }
