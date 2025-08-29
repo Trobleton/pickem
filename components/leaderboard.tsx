@@ -307,7 +307,9 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center text-sm md:text-base">Bracket (+2)</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">
+            Bracket (+2)
+          </CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
             <NumberFlow value={bracketScore} trend={0} animated />
           </CardContent>
@@ -324,7 +326,9 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center text-sm md:text-base">Ranking (+4)</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">
+            Ranking (+4)
+          </CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
             <NumberFlow value={rankingScore} trend={0} animated />
           </CardContent>
@@ -341,14 +345,18 @@ function LeaderboardUserPicks({
             )
           }
         >
-          <CardHeader className="px-2 text-center text-sm md:text-base">Top 5 (+5)</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">
+            Top 5 (+5)
+          </CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
             <NumberFlow value={topFiveScore} trend={0} animated />
           </CardContent>
         </Card>
 
         <Card className="p-2 gap-0 col-span-3 md:col-span-1">
-          <CardHeader className="px-2 text-center text-sm md:text-base">Total</CardHeader>
+          <CardHeader className="px-2 text-center text-sm md:text-base">
+            Total
+          </CardHeader>
           <CardContent className="px-2 text-center text-3xl font-mono">
             <NumberFlow value={totalScore} trend={0} animated />
           </CardContent>
@@ -366,7 +374,10 @@ function LeaderboardUserPicks({
         </Button>
       </div>
 
-      <div className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 max-h-[400px] overflow-y-scroll lg:overflow-x-hidden overflow-x-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5 min-w-0" style={{gridTemplateColumns: 'repeat(4, minmax(200px, 1fr))'}}>
+      <div
+        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 max-h-[40vh] overflow-y-scroll lg:overflow-x-hidden overflow-x-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5 min-w-0"
+        style={{ gridTemplateColumns: "repeat(4, minmax(200px, 1fr))" }}
+      >
         {Object.entries(picksByRound)
           .reverse()
           .map(([round, picks]) => (
@@ -464,15 +475,15 @@ function LeaderboardUserPicksRoundItem({
 
   if (!participant) {
     return (
-      <div className="flex flex-row items-center gap-4 h-8 bg-neutral-900 rounded-md">
+      <div className="flex flex-row items-center gap-4 h-auto md:h-8 min-h-8 py-1 md:py-0 bg-neutral-900 rounded-md border border-red-900">
         <span className="font-mono w-6 pl-2">{displayRank}</span>
-        <span className="line-through">Dropped Out</span>
+        <span className="line-through text-sm truncate">Dropped Out</span>
       </div>
     );
   }
 
   return (
-    <div className="relative flex flex-row items-center gap-4 overflow-hidden h-8 bg-neutral-900 rounded-md border border-neutral-700">
+    <div className="relative flex flex-row items-center gap-4 overflow-hidden h-auto md:h-8 min-h-8 py-1 md:py-0 bg-neutral-900 rounded-md border border-neutral-700">
       <span className="font-mono w-6 pl-2">
         <NumberFlow value={displayRank} animated trend={0} />
       </span>
