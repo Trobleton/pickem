@@ -28,6 +28,12 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
+import {
+  calculateBracketScore,
+  calculateRankingScore,
+  calculateTopFiveScore,
+} from "@/lib/events";
+import { TEventResponse } from "@/types/events";
 import { useMutation, useQuery } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import { Settings } from "lucide-react";
@@ -53,77 +59,22 @@ export default function EventsEditor({ data }: Props) {
     },
   });
 
-  function calculateRankingScore(
-    picks: number[],
-    resultsJson: { participants: { contestant_id: number; ranking: number }[] },
-  ) {
-    let score = 0;
-
-    // Calculate 4 points per correct ranking
-    resultsJson.participants.forEach(({ contestant_id, ranking }) => {
-      const pickRank = picks.indexOf(contestant_id) + 1;
-      if (pickRank === ranking) {
-        score += 4;
-      }
-    });
-
-    return score;
-  }
-
-  function calculateBracketScore(
-    picks: number[],
-    resultsJson: { participants: { contestant_id: number; ranking: number }[] },
-  ) {
-    let score = 0;
-
-    // Calculate 2 points for each pick in the top 30 that is actually in the top 30
-    const top30Results = resultsJson.participants
-      .filter(({ ranking }) => ranking <= 30)
-      .map(({ contestant_id }) => contestant_id);
-    const top30Picks = picks.slice(0, 30);
-
-    top30Picks.forEach((pick) => {
-      if (top30Results.includes(pick)) {
-        score += 2;
-      }
-    });
-
-    return score;
-  }
-
-  function calculateTopFiveScore(
-    picks: number[],
-    resultsJson: { participants: { contestant_id: number; ranking: number }[] },
-  ) {
-    let score = 0;
-
-    // Calculate 5 points per correct pick in the top 5
-    const topFiveResults = resultsJson.participants
-      .filter(({ ranking }) => ranking <= 5)
-      .map(({ contestant_id }) => contestant_id);
-    const topFivePicks = picks.slice(0, 5);
-
-    topFivePicks.forEach((pick) => {
-      if (topFiveResults.includes(pick)) {
-        score += 5;
-      }
-    });
-
-    return score;
-  }
-
   function getUserScore(picks: number[], results: string) {
-    const resultsJson: {
-      participants: {
-        contestant_id: number;
-        ranking: number;
-        rounds_count: number;
-      }[];
-    } = JSON.parse(results);
+    const resultsJson: TEventResponse = JSON.parse(results);
+    const { participants } = resultsJson;
 
-    const rankingScore = calculateRankingScore(picks, resultsJson);
-    const bracketScore = calculateBracketScore(picks, resultsJson);
-    const topFiveScore = calculateTopFiveScore(picks, resultsJson);
+    const rankingScore = calculateRankingScore({
+      picks,
+      results: participants,
+    });
+    const bracketScore = calculateBracketScore({
+      picks,
+      results: participants,
+    });
+    const topFiveScore = calculateTopFiveScore({
+      picks,
+      results: participants,
+    });
 
     return rankingScore + bracketScore + topFiveScore;
   }
