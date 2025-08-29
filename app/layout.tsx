@@ -2,14 +2,11 @@ import { type Metadata } from "next";
 import {
   ClerkProvider,
   SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton,
 } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
@@ -63,11 +60,9 @@ export default function RootLayout({
             </SignedOut>
 
             <Analytics />
-            <SpeedInsights />
           </body>
         </html>
       </Providers>
     </ClerkProvider>
   );
 }
-
