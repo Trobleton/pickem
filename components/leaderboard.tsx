@@ -200,12 +200,14 @@ function LeaderboardResults({
                     <TableCell>{result.score}</TableCell>
                   </TableRow>
                 </DrawerTrigger>
-                <DrawerContent className="px-4 focus-visible:outline-none overflow-auto after:h-0!">
-                  <DrawerHeader>
+                <DrawerContent className="px-4 focus-visible:outline-none overflow-auto after:h-0! h-full min-h-2/3">
+                  <DrawerHeader className="flex flex-row gap-4 items-baseline max-w-4xl mx-auto w-full px-0">
+                    <DrawerDescription className="font-mono text-2xl w-8">
+                      {result.rank}
+                    </DrawerDescription>
                     <DrawerTitle className="text-2xl">
                       {result.user!.displayName}
                     </DrawerTitle>
-                    <DrawerDescription>Rank: {result.rank}</DrawerDescription>
                   </DrawerHeader>
 
                   <LeaderboardUserPicks
@@ -318,9 +320,12 @@ function LeaderboardUserPicks({
   );
 
   return (
-    <div className="space-y-4 pb-8">
+    <div className="space-y-4">
       <div className="sticky top-0 p-4 z-10 -mx-4 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="grid grid-cols-3 md:grid-cols-4 max-w-4xl mx-auto gap-4">
+        <div
+          className="grid grid-cols-4 max-w-4xl mx-auto gap-4 overflow-x-auto md:overflow-x-visible p-0.5"
+          style={{ gridTemplateColumns: "repeat(4, minmax(120px, 1fr))" }}
+        >
           <Card
             className={cn(
               "p-2 gap-0 cursor-pointer",
@@ -333,7 +338,7 @@ function LeaderboardUserPicks({
             }
           >
             <CardHeader className="px-2 text-center text-sm md:text-base">
-              Bracket (+2)
+              Bracket
             </CardHeader>
             <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
               <NumberFlow value={bracketScore} trend={0} animated />
@@ -352,7 +357,7 @@ function LeaderboardUserPicks({
             }
           >
             <CardHeader className="px-2 text-center text-sm md:text-base">
-              Ranking (+4)
+              Ranking
             </CardHeader>
             <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
               <NumberFlow value={rankingScore} trend={0} animated />
@@ -371,14 +376,14 @@ function LeaderboardUserPicks({
             }
           >
             <CardHeader className="px-2 text-center text-sm md:text-base">
-              Top 5 (+5)
+              Top 5
             </CardHeader>
             <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
               <NumberFlow value={topFiveScore} trend={0} animated />
             </CardContent>
           </Card>
 
-          <Card className="p-2 gap-0 col-span-3 md:col-span-1">
+          <Card className="p-2 gap-0">
             <CardHeader className="px-2 text-center text-sm md:text-base">
               Total
             </CardHeader>
@@ -387,21 +392,20 @@ function LeaderboardUserPicks({
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      <div className="flex justify-center mb-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowFinalRanks(!showFinalRanks)}
-          className="text-xs"
-        >
-          {showFinalRanks ? "Show My Rankings" : "Show Final Rankings"}
-        </Button>
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFinalRanks(!showFinalRanks)}
+            className="text-xs"
+          >
+            {showFinalRanks ? "Show My Rankings" : "Show Final Rankings"}
+          </Button>
+        </div>
       </div>
 
       <div
-        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll p-0.5"
+        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll p-0.5 pb-8"
         style={{ gridTemplateColumns: "repeat(4, minmax(200px, 1fr))" }}
       >
         {Object.entries(picksByRound)

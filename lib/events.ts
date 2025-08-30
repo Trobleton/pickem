@@ -22,14 +22,37 @@ export function calculateRankingScore({ picks, results }: CalculateParams) {
 export function calculateBracketScore({ picks, results }: CalculateParams) {
   let score = 0;
 
-  // Calculate 2 points for each pick in the top 30 that is actually in the top 30
-  const top30Results = results
-    .filter(({ ranking }) => ranking <= 30)
-    .map(({ contestant_id }) => contestant_id);
-  const top30Picks = picks.slice(0, 30);
-
-  top30Picks.forEach((pick) => {
-    if (top30Results.includes(pick)) {
+  // Bracket scoring: 2 points for each pick in the correct bracket
+  // Bracket 4: positions 11-30 (picks 10-29)
+  // Bracket 3: positions 3-10 (picks 2-9) 
+  // Bracket 2: position 2 (pick 1)
+  // Bracket 1: position 1 (pick 0)
+  
+  picks.forEach((pick, pickIndex) => {
+    const participant = results.find(({ contestant_id }) => contestant_id === pick);
+    if (!participant) return;
+    
+    const actualRanking = participant.ranking;
+    const pickPosition = pickIndex + 1; // 1-indexed position in user's picks
+    
+    // Check if pick is in the correct bracket
+    let inCorrectBracket = false;
+    
+    if (pickPosition === 1 && actualRanking === 1) {
+      // Bracket 1: 1st place pick should be 1st place
+      inCorrectBracket = true;
+    } else if (pickPosition === 2 && actualRanking === 2) {
+      // Bracket 2: 2nd place pick should be 2nd place
+      inCorrectBracket = true;
+    } else if (pickPosition >= 3 && pickPosition <= 10 && actualRanking >= 3 && actualRanking <= 10) {
+      // Bracket 3: picks 3-10 should be ranked 3-10
+      inCorrectBracket = true;
+    } else if (pickPosition >= 11 && pickPosition <= 30 && actualRanking >= 11 && actualRanking <= 30) {
+      // Bracket 4: picks 11-30 should be ranked 11-30
+      inCorrectBracket = true;
+    }
+    
+    if (inCorrectBracket) {
       score += 2;
     }
   });
@@ -71,12 +94,38 @@ export function getCorrectBracketParticipants({
   picks,
   results,
 }: CalculateParams) {
-  const top30Results = results
-    .filter(({ ranking }) => ranking <= 30)
-    .map(({ contestant_id }) => contestant_id);
-  const top30Picks = picks.slice(0, 30);
+  const correctBracketPicks: number[] = [];
+  
+  picks.forEach((pick, pickIndex) => {
+    const participant = results.find(({ contestant_id }) => contestant_id === pick);
+    if (!participant) return;
+    
+    const actualRanking = participant.ranking;
+    const pickPosition = pickIndex + 1; // 1-indexed position in user's picks
+    
+    // Check if pick is in the correct bracket
+    let inCorrectBracket = false;
+    
+    if (pickPosition === 1 && actualRanking === 1) {
+      // Bracket 1: 1st place pick should be 1st place
+      inCorrectBracket = true;
+    } else if (pickPosition === 2 && actualRanking === 2) {
+      // Bracket 2: 2nd place pick should be 2nd place
+      inCorrectBracket = true;
+    } else if (pickPosition >= 3 && pickPosition <= 10 && actualRanking >= 3 && actualRanking <= 10) {
+      // Bracket 3: picks 3-10 should be ranked 3-10
+      inCorrectBracket = true;
+    } else if (pickPosition >= 11 && pickPosition <= 30 && actualRanking >= 11 && actualRanking <= 30) {
+      // Bracket 4: picks 11-30 should be ranked 11-30
+      inCorrectBracket = true;
+    }
+    
+    if (inCorrectBracket) {
+      correctBracketPicks.push(pick);
+    }
+  });
 
-  return top30Picks.filter((pick) => top30Results.includes(pick));
+  return correctBracketPicks;
 }
 
 export function getCorrectTopFiveParticipants({
