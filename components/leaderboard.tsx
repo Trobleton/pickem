@@ -50,22 +50,26 @@ import {
 import NumberFlow from "@number-flow/react";
 import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
+import { TopPicksChart } from "./top-picks-chart";
 
 export default function Leaderboard({
   preloadLeaderboard,
   preloadedEvent,
+  preloadMostPopularPick,
 }: {
   preloadLeaderboard: Preloaded<typeof api.leaderboard.getCurrentLeaderboard>;
   preloadedEvent: Preloaded<typeof api.events.getCurrentEvent>;
+  preloadMostPopularPick: Preloaded<typeof api.events.getEventMostPopularPick>;
 }) {
   const event = usePreloadedQuery(preloadedEvent);
   const leaderboard = usePreloadedQuery(preloadLeaderboard);
+  const mostPopularPick = usePreloadedQuery(preloadMostPopularPick);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto grid grid-cols-12 gap-4">
       <Card
         className={cn(
-          "border-purple-800 min-h-32 relative",
+          "border-purple-800 min-h-32 relative col-span-full",
           !leaderboard && "mask-b-from-25%",
         )}
       >
@@ -119,6 +123,10 @@ export default function Leaderboard({
           )}
         </CardContent>
       </Card>
+
+      <div className="col-span-6">
+        <TopPicksChart data={mostPopularPick} />
+      </div>
     </div>
   );
 }

@@ -48,3 +48,67 @@ export const updateEvent = mutation({
     await ctx.db.patch(eventId, { ...rest });
   },
 });
+
+export const getEventMostPopularPick = query({
+  args: { eventId: v.optional(v.id("events")) },
+  handler: async (ctx, args) => {
+    const event = args.eventId
+      ? await ctx.db.get(args.eventId)
+      : await ctx.db.query("events").order("desc").first();
+
+    if (!event || !event.results) {
+      return null;
+    }
+
+    const picks = await ctx.db
+      .query("picks")
+      .filter((q) => q.eq(q.field("eventId"), event._id))
+      .collect();
+
+    if (picks.length === 0) {
+      return null;
+    }
+
+    // Count frequency of first place picks (index 0)
+    const firstPlacePickCounts = new Map<number, number>();
+
+    picks.forEach((pick) => {
+      if (pick.picks.length > 0) {
+        const firstPlaceContestantId = pick.picks[0];
+        firstPlacePickCounts.set(
+          firstPlaceContestantId, 
+          (firstPlacePickCounts.get(firstPlaceContestantId) || 0) + 1
+        );
+      }
+    });
+
+    // Sort by pick count and get top 3
+    const sortedPicks = Array.from(firstPlacePickCounts.entries())
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3);
+
+    if (sortedPicks.length === 0) {
+      return null;
+    }
+
+    // Parse event results to find the participant objects
+    const eventResults = JSON.parse(event.results);
+    
+    const top3Picks = sortedPicks.map(([contestantId, pickCount]) => {
+      const participant = eventResults.participants.find(
+        (p: { contestant_id: number }) => p.contestant_id === contestantId,
+      );
+      
+      return {
+        participant,
+        pickCount,
+        percentage: Math.round((pickCount / picks.length) * 100),
+      };
+    });
+
+    return {
+      top3Picks,
+      totalPicks: picks.length,
+    };
+  },
+});
