@@ -176,7 +176,7 @@ function LeaderboardResults({
                     <TableCell>{result.score}</TableCell>
                   </TableRow>
                 </DrawerTrigger>
-                <DrawerContent className="min-h-3/4 px-4 focus-visible:outline-none">
+                <DrawerContent className="px-4 focus-visible:outline-none overflow-auto after:h-0!">
                   <DrawerHeader>
                     <DrawerTitle className="text-2xl">
                       {result.user!.displayName}
@@ -294,73 +294,75 @@ function LeaderboardUserPicks({
   );
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 md:grid-cols-4 max-w-4xl mx-auto gap-4">
-        <Card
-          className={cn(
-            "p-2 gap-0 cursor-pointer",
-            highlightedCategory === "bracket" && "outline outline-green-500",
-          )}
-          onClick={() =>
-            setHighlightedCategory((prev) =>
-              prev === "bracket" ? null : "bracket",
-            )
-          }
-        >
-          <CardHeader className="px-2 text-center text-sm md:text-base">
-            Bracket (+2)
-          </CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
-            <NumberFlow value={bracketScore} trend={0} animated />
-          </CardContent>
-        </Card>
+    <div className="space-y-4 pb-8">
+      <div className="sticky top-0 p-4 z-10 -mx-4 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="grid grid-cols-3 md:grid-cols-4 max-w-4xl mx-auto gap-4">
+          <Card
+            className={cn(
+              "p-2 gap-0 cursor-pointer",
+              highlightedCategory === "bracket" && "outline outline-green-500",
+            )}
+            onClick={() =>
+              setHighlightedCategory((prev) =>
+                prev === "bracket" ? null : "bracket",
+              )
+            }
+          >
+            <CardHeader className="px-2 text-center text-sm md:text-base">
+              Bracket (+2)
+            </CardHeader>
+            <CardContent className="px-2 text-center text-3xl font-mono text-green-500">
+              <NumberFlow value={bracketScore} trend={0} animated />
+            </CardContent>
+          </Card>
 
-        <Card
-          className={cn(
-            "p-2 gap-0 cursor-pointer",
-            highlightedCategory === "ranking" && "outline outline-blue-500",
-          )}
-          onClick={() =>
-            setHighlightedCategory((prev) =>
-              prev === "ranking" ? null : "ranking",
-            )
-          }
-        >
-          <CardHeader className="px-2 text-center text-sm md:text-base">
-            Ranking (+4)
-          </CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
-            <NumberFlow value={rankingScore} trend={0} animated />
-          </CardContent>
-        </Card>
+          <Card
+            className={cn(
+              "p-2 gap-0 cursor-pointer",
+              highlightedCategory === "ranking" && "outline outline-blue-500",
+            )}
+            onClick={() =>
+              setHighlightedCategory((prev) =>
+                prev === "ranking" ? null : "ranking",
+              )
+            }
+          >
+            <CardHeader className="px-2 text-center text-sm md:text-base">
+              Ranking (+4)
+            </CardHeader>
+            <CardContent className="px-2 text-center text-3xl font-mono text-blue-500">
+              <NumberFlow value={rankingScore} trend={0} animated />
+            </CardContent>
+          </Card>
 
-        <Card
-          className={cn(
-            "p-2 gap-0 cursor-pointer",
-            highlightedCategory === "topFive" && "outline outline-purple-500",
-          )}
-          onClick={() =>
-            setHighlightedCategory((prev) =>
-              prev === "topFive" ? null : "topFive",
-            )
-          }
-        >
-          <CardHeader className="px-2 text-center text-sm md:text-base">
-            Top 5 (+5)
-          </CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
-            <NumberFlow value={topFiveScore} trend={0} animated />
-          </CardContent>
-        </Card>
+          <Card
+            className={cn(
+              "p-2 gap-0 cursor-pointer",
+              highlightedCategory === "topFive" && "outline outline-purple-500",
+            )}
+            onClick={() =>
+              setHighlightedCategory((prev) =>
+                prev === "topFive" ? null : "topFive",
+              )
+            }
+          >
+            <CardHeader className="px-2 text-center text-sm md:text-base">
+              Top 5 (+5)
+            </CardHeader>
+            <CardContent className="px-2 text-center text-3xl font-mono text-purple-500">
+              <NumberFlow value={topFiveScore} trend={0} animated />
+            </CardContent>
+          </Card>
 
-        <Card className="p-2 gap-0 col-span-3 md:col-span-1">
-          <CardHeader className="px-2 text-center text-sm md:text-base">
-            Total
-          </CardHeader>
-          <CardContent className="px-2 text-center text-3xl font-mono">
-            <NumberFlow value={totalScore} trend={0} animated />
-          </CardContent>
-        </Card>
+          <Card className="p-2 gap-0 col-span-3 md:col-span-1">
+            <CardHeader className="px-2 text-center text-sm md:text-base">
+              Total
+            </CardHeader>
+            <CardContent className="px-2 text-center text-3xl font-mono">
+              <NumberFlow value={totalScore} trend={0} animated />
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <div className="flex justify-center mb-4">
@@ -375,7 +377,7 @@ function LeaderboardUserPicks({
       </div>
 
       <div
-        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 sm:max-h-[25vh] md:max-h-[40vh] overflow-y-scroll lg:overflow-x-hidden overflow-x-scroll mask-b-from-80% pb-12 px-0.5 pt-0.5 min-w-0"
+        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll"
         style={{ gridTemplateColumns: "repeat(4, minmax(200px, 1fr))" }}
       >
         {Object.entries(picksByRound)
