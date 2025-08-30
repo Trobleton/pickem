@@ -13,6 +13,10 @@ export default async function Home() {
     api.events.getEventMostPopularPick,
     {},
   );
+  const preloadEventParticipantWinner = await preloadQuery(
+    api.events.getEventParticipantWinner,
+    {},
+  );
 
   return (
     <div className="p-4 space-y-4">
@@ -21,6 +25,7 @@ export default async function Home() {
         preloadLeaderboard={preloadLeaderboard}
         preloadedEvent={preloadEvent}
         preloadMostPopularPick={preloadMostPopularPick}
+        preloadEventParticipantWinner={preloadEventParticipantWinner}
       />
     </div>
   );

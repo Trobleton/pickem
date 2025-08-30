@@ -56,14 +56,30 @@ export default function Leaderboard({
   preloadLeaderboard,
   preloadedEvent,
   preloadMostPopularPick,
+  preloadEventParticipantWinner,
 }: {
   preloadLeaderboard: Preloaded<typeof api.leaderboard.getCurrentLeaderboard>;
   preloadedEvent: Preloaded<typeof api.events.getCurrentEvent>;
   preloadMostPopularPick: Preloaded<typeof api.events.getEventMostPopularPick>;
+  preloadEventParticipantWinner: Preloaded<
+    typeof api.events.getEventParticipantWinner
+  >;
 }) {
   const event = usePreloadedQuery(preloadedEvent);
   const leaderboard = usePreloadedQuery(preloadLeaderboard);
   const mostPopularPick = usePreloadedQuery(preloadMostPopularPick);
+  const eventWinner = usePreloadedQuery(preloadEventParticipantWinner);
+
+  if (!event) {
+    return (
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl">Leaderboard</CardTitle>
+          <CardDescription>No active event</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto grid grid-cols-12 gap-4">
@@ -124,7 +140,7 @@ export default function Leaderboard({
         </CardContent>
       </Card>
 
-      <div className="col-span-6">
+      <div className="col-span-full md:col-span-6">
         <TopPicksChart data={mostPopularPick} />
       </div>
     </div>

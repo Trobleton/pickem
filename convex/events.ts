@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { action, mutation, query } from "./_generated/server";
+import { TEventResponse } from "@/types/events";
 
 export const getEvents = query({
   handler: async (ctx) => {
@@ -76,8 +77,8 @@ export const getEventMostPopularPick = query({
       if (pick.picks.length > 0) {
         const firstPlaceContestantId = pick.picks[0];
         firstPlacePickCounts.set(
-          firstPlaceContestantId, 
-          (firstPlacePickCounts.get(firstPlaceContestantId) || 0) + 1
+          firstPlaceContestantId,
+          (firstPlacePickCounts.get(firstPlaceContestantId) || 0) + 1,
         );
       }
     });
@@ -93,12 +94,12 @@ export const getEventMostPopularPick = query({
 
     // Parse event results to find the participant objects
     const eventResults = JSON.parse(event.results);
-    
+
     const top3Picks = sortedPicks.map(([contestantId, pickCount]) => {
       const participant = eventResults.participants.find(
         (p: { contestant_id: number }) => p.contestant_id === contestantId,
       );
-      
+
       return {
         participant,
         pickCount,
@@ -110,5 +111,30 @@ export const getEventMostPopularPick = query({
       top3Picks,
       totalPicks: picks.length,
     };
+  },
+});
+
+export const getEventParticipantWinner = query({
+  args: { eventId: v.optional(v.id("events")) },
+  handler: async (ctx, args) => {
+    const event = args.eventId
+      ? await ctx.db.get(args.eventId)
+      : await ctx.db.query("events").order("desc").first();
+
+    if (!event || !event.results) {
+      return null;
+    }
+
+    // Parse event results to find participants and sort them by their scores
+    const eventResults: TEventResponse = JSON.parse(event.results);
+
+    if (
+      !eventResults.participants ||
+      !Array.isArray(eventResults.participants)
+    ) {
+      return null;
+    }
+
+    return eventResults.participants.find((p) => p.ranking === 1);
   },
 });
