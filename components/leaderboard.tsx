@@ -377,7 +377,7 @@ function LeaderboardUserPicks({
       </div>
 
       <div
-        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll"
+        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll p-0.5"
         style={{ gridTemplateColumns: "repeat(4, minmax(200px, 1fr))" }}
       >
         {Object.entries(picksByRound)
