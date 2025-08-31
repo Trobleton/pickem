@@ -184,7 +184,7 @@ function LeaderboardResults({
   if (!leaderboard) return null;
 
   return (
-    <div className="relative max-h-[400px] overflow-y-scroll">
+    <div className="relative max-h-[400px] overflow-y-auto scrollbar">
       <Table>
         <TableHeader className="sticky top-0">
           <TableRow>
@@ -350,7 +350,7 @@ function LeaderboardUserPicks({
     <div className="space-y-4">
       <div className="sticky top-0 p-4 z-10 -mx-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div
-          className="grid grid-cols-4 max-w-4xl mx-auto gap-4 overflow-x-auto md:overflow-x-visible p-0.5"
+          className="grid grid-cols-4 max-w-4xl mx-auto gap-4 overflow-x-auto p-0.5 scrollbar"
           style={{ gridTemplateColumns: "repeat(4, minmax(120px, 1fr))" }}
         >
           <Card
@@ -432,7 +432,7 @@ function LeaderboardUserPicks({
       </div>
 
       <div
-        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-scroll p-0.5 pb-8"
+        className="grid grid-cols-4 lg:max-w-4xl mx-auto gap-4 min-w-0 overflow-x-auto scrollbar p-0.5 pb-8"
         style={{ gridTemplateColumns: "repeat(4, minmax(200px, 1fr))" }}
       >
         {Object.entries(picksByRound)
