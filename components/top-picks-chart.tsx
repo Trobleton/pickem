@@ -43,9 +43,7 @@ export function TopPicksChart({ data }: { data: TopPicksData }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
-            Most Popular First Place Picks
-          </CardTitle>
+          <CardTitle>Most Popular First Place Picks</CardTitle>
           <CardDescription>No data available</CardDescription>
         </CardHeader>
       </Card>
@@ -61,9 +59,7 @@ export function TopPicksChart({ data }: { data: TopPicksData }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">
-          Most Popular First Place Picks
-        </CardTitle>
+        <CardTitle>Most Popular First Place Picks</CardTitle>
         <CardDescription>
           Based on {data.totalPicks} total picks
         </CardDescription>
@@ -131,4 +127,3 @@ export function TopPicksChart({ data }: { data: TopPicksData }) {
     </Card>
   );
 }
-

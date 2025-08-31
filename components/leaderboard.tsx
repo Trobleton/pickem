@@ -203,6 +203,7 @@ function LeaderboardResults({
                 <DrawerTrigger asChild>
                   <TableRow
                     className={cn(
+                      "hover:cursor-pointer",
                       isCurrentUser &&
                         "bg-purple-700/20 hover:bg-purple-700/50",
                     )}
@@ -227,7 +228,7 @@ function LeaderboardResults({
                   </TableRow>
                 </DrawerTrigger>
                 <DrawerContent className="px-4 focus-visible:outline-none overflow-auto after:h-0! h-full min-h-2/3">
-                  <DrawerHeader className="flex flex-row gap-4 items-baseline max-w-4xl mx-auto w-full px-0">
+                  <DrawerHeader className="flex flex-row gap-4 items-baseline max-w-4xl mx-auto w-full px-0 pb-0">
                     <DrawerDescription className="font-mono text-2xl w-8">
                       {result.rank}
                     </DrawerDescription>
