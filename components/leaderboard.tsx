@@ -350,7 +350,7 @@ function LeaderboardUserPicks({
     <div className="space-y-4">
       <div className="sticky top-0 p-4 z-10 -mx-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div
-          className="grid grid-cols-4 max-w-4xl mx-auto gap-4 overflow-x-auto p-0.5 scrollbar"
+          className="grid grid-cols-4 max-w-4xl mx-auto gap-4 overflow-x-auto md:overflow-x-visible p-0.5 scrollbar"
           style={{ gridTemplateColumns: "repeat(4, minmax(120px, 1fr))" }}
         >
           <Card
