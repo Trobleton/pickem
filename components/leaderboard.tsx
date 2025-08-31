@@ -51,6 +51,7 @@ import NumberFlow from "@number-flow/react";
 import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import { TopPicksChart } from "./top-picks-chart";
+import { Avatar, AvatarImage } from "./ui/avatar";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -142,6 +143,31 @@ export default function Leaderboard({
 
       <div className="col-span-full md:col-span-6">
         <TopPicksChart data={mostPopularPick} />
+      </div>
+
+      <div className="h-full col-span-full md:col-span-6">
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle>{event.name} Winner</CardTitle>
+            <CardDescription>Congratulations to our #1 Mute</CardDescription>
+          </CardHeader>
+          <CardContent className="relative h-full">
+            <div className="relative size-full flex items-center justify-center">
+              <span className="absolute size-[96px] rounded-full blur-xl bg-amber-400 inset-0 m-auto animate-pulse" />
+              <Avatar className="mx-auto size-[120px] outline outline-amber-400 outline-offset-2">
+                <AvatarImage
+                  src={eventWinner?.tierlist_image}
+                  height={120}
+                  width={120}
+                />
+              </Avatar>
+            </div>
+
+            <span className="inline-block w-fit text-4xl font-bold font-sans self-center absolute bottom-0 md:bottom-8 inset-x-0 mx-auto z-10">
+              {eventWinner?.display_name}
+            </span>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -280,7 +306,7 @@ function LeaderboardUserPicks({
   }, [picks, participants, score]);
 
   if (typeof picks === "undefined") {
-    return <p>loading...</p>;
+    return <div className="block w-full h-[800px]" />;
   }
 
   if (!picks) return null;

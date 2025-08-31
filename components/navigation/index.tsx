@@ -1,10 +1,16 @@
-import { UserButton } from "@clerk/nextjs";
+"use client";
+
+import { UserButton, useUser } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { Card } from "../ui/card";
 import Link from "next/link";
 import Image from "next/image";
+import { isUserAdmin } from "@/lib/user";
+import { Button } from "../ui/button";
 
 export default function Navigation() {
+  const user = useUser();
+  const isAdmin = isUserAdmin(user);
+
   return (
     <header className="p-4 w-full flex flex-row items-center gap-4">
       <nav>
@@ -21,10 +27,14 @@ export default function Navigation() {
           Pick&apos;Em
         </Link>
       </nav>
-      <div className="ml-auto w-fit text-white">
+      <div className="ml-auto flex flex-row items-center gap-2 w-fit text-white">
+        {isAdmin ? (
+          <Button variant="link" size="sm">
+            <Link href="/admin">Admin</Link>
+          </Button>
+        ) : null}
         <UserButton showName appearance={{ theme: dark }} />
       </div>
     </header>
   );
 }
-

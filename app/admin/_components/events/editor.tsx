@@ -185,7 +185,7 @@ export default function EventsEditor({ data }: Props) {
                     <FormItem>
                       <FormLabel>Results</FormLabel>
                       <FormControl>
-                        <Textarea {...field} />
+                        <Textarea className="max-h-[400px]" {...field} />
                       </FormControl>
                       <FormDescription>
                         Paste the raw JSON from Jimmy&apos;s results
