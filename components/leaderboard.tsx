@@ -53,6 +53,7 @@ import Image from "next/image";
 import { TopPicksChart } from "./top-picks-chart";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
+import EventScoring from "./event/scoring";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -96,41 +97,7 @@ export default function Leaderboard({
           <CardDescription>{event?.name}</CardDescription>
 
           <div className="absolute top-4 right-4 flex flex-row-reverse items-center gap-1 md:gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-fit p-2 hover:cursor-pointer"
-                  title="Leaderboard Scoring Info"
-                >
-                  <InfoIcon size={14} />
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Leaderboard Scoring</DialogTitle>
-
-                  <div className="text-sm space-y-2">
-                    <p>A perfect pick would total 205 points.</p>
-                    <ul className="list-disc list-inside">
-                      <li>
-                        <strong>4 points</strong> per correct ranking (120
-                        points)
-                      </li>
-                      <li>
-                        <strong>2 points</strong> per correct bracket (60
-                        points)
-                      </li>
-                      <li>
-                        <strong>5 points</strong> per correct top 5 (25 points)
-                      </li>
-                    </ul>
-                  </div>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+            <EventScoring />
 
             {event.vod ? (
               <Button
@@ -247,13 +214,15 @@ function LeaderboardResults({
                   </TableRow>
                 </DrawerTrigger>
                 <DrawerContent className="px-4 focus-visible:outline-none overflow-auto after:h-0! h-full min-h-2/3">
-                  <DrawerHeader className="flex flex-row gap-4 items-baseline max-w-4xl mx-auto w-full px-0 pb-0">
+                  <DrawerHeader className="relative flex flex-row gap-4 items-baseline max-w-4xl mx-auto w-full px-0 pb-0">
                     <DrawerDescription className="font-mono text-2xl w-8">
                       {result.rank}
                     </DrawerDescription>
                     <DrawerTitle className="text-2xl">
                       {result.user!.displayName}
                     </DrawerTitle>
+
+                    <EventScoring className="absolute top-4 right-0" />
                   </DrawerHeader>
 
                   <LeaderboardUserPicks
