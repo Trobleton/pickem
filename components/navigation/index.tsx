@@ -29,7 +29,7 @@ export default function Navigation() {
       </nav>
       <div className="ml-auto flex flex-row items-center gap-2 w-fit text-white">
         {isAdmin ? (
-          <Button variant="link" size="sm">
+          <Button variant="link" size="sm" className="p-0">
             <Link href="/admin">Admin</Link>
           </Button>
         ) : null}

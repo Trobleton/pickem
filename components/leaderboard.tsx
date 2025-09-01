@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { InfoIcon, MedalIcon } from "lucide-react";
+import { ExternalLink, InfoIcon, MedalIcon, Youtube } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import {
@@ -52,6 +52,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import { TopPicksChart } from "./top-picks-chart";
 import { Avatar, AvatarImage } from "./ui/avatar";
+import Link from "next/link";
 
 export default function Leaderboard({
   preloadLeaderboard,
@@ -94,39 +95,57 @@ export default function Leaderboard({
           <CardTitle className="text-2xl">Leaderboard</CardTitle>
           <CardDescription>{event?.name}</CardDescription>
 
-          <Dialog>
-            <DialogTrigger asChild>
+          <div className="absolute top-4 right-4 flex flex-row-reverse items-center gap-1 md:gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-fit p-2 hover:cursor-pointer"
+                  title="Leaderboard Scoring Info"
+                >
+                  <InfoIcon size={14} />
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Leaderboard Scoring</DialogTitle>
+
+                  <div className="text-sm space-y-2">
+                    <p>A perfect pick would total 205 points.</p>
+                    <ul className="list-disc list-inside">
+                      <li>
+                        <strong>4 points</strong> per correct ranking (120
+                        points)
+                      </li>
+                      <li>
+                        <strong>2 points</strong> per correct bracket (60
+                        points)
+                      </li>
+                      <li>
+                        <strong>5 points</strong> per correct top 5 (25 points)
+                      </li>
+                    </ul>
+                  </div>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+
+            {event.vod ? (
               <Button
-                size="icon"
                 variant="ghost"
-                className="size-fit p-2 absolute top-4 right-4"
-                title="Leaderboard Scoring Info"
+                size="sm"
+                className="size-fit py-1.5 px-2 text-xs flex flex-row items-center gap-2"
+                asChild
               >
-                <InfoIcon size={14} />
+                <Link href={event.vod}>
+                  <span className="hidden md:inline-block">Event</span>
+                  <Youtube size={14} strokeWidth={1.5} />
+                </Link>
               </Button>
-            </DialogTrigger>
-
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Leaderboard Scoring</DialogTitle>
-
-                <div className="text-sm space-y-2">
-                  <p>A perfect pick would total 205 points.</p>
-                  <ul className="list-disc list-inside">
-                    <li>
-                      <strong>4 points</strong> per correct ranking (120 points)
-                    </li>
-                    <li>
-                      <strong>2 points</strong> per correct bracket (60 points)
-                    </li>
-                    <li>
-                      <strong>5 points</strong> per correct top 5 (25 points)
-                    </li>
-                  </ul>
-                </div>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+            ) : null}
+          </div>
         </CardHeader>
 
         <CardContent>
