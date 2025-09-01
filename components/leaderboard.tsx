@@ -106,7 +106,7 @@ export default function Leaderboard({
                 className="size-fit py-1.5 px-2 text-xs flex flex-row items-center gap-2"
                 asChild
               >
-                <Link href={event.vod}>
+                <Link href={event.vod} target="_blank" rel="noreferrer">
                   <span className="hidden md:inline-block">Event</span>
                   <Youtube size={14} strokeWidth={1.5} />
                 </Link>
